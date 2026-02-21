@@ -36,12 +36,16 @@
   function render(data) {
     var pixels = (data && data.pixels) || [];
     var events = (data && data.events) || [];
+    var consent = (data && data.consent) || null;
 
     // Update pixel count
     document.getElementById('pixelCount').textContent = pixels.length;
 
     // Summary bar
     renderSummaryBar(pixels);
+
+    // Consent Mode V2
+    renderConsentSection(consent);
 
     // Pixel list
     renderPixelList(pixels, events);
@@ -337,6 +341,199 @@
 
   function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ─── Consent Mode V2 ───────────────────────────────────────
+
+  var CONSENT_PARAM_LABELS = {
+    ad_storage:              { label: 'Ad Storage',              v2: false },
+    analytics_storage:       { label: 'Analytics Storage',       v2: false },
+    ad_user_data:            { label: 'Ad User Data',            v2: true  },
+    ad_personalization:      { label: 'Ad Personalization',      v2: true  },
+    functionality_storage:   { label: 'Functionality Storage',   v2: false },
+    personalization_storage: { label: 'Personalization Storage', v2: false },
+    security_storage:        { label: 'Security Storage',        v2: false }
+  };
+
+  function renderConsentSection(consent) {
+    var section = document.getElementById('consentSection');
+
+    if (!consent || !consent.detected) {
+      section.classList.add('hidden');
+      return;
+    }
+
+    section.classList.remove('hidden');
+
+    // Mode badge
+    var modeBadge = document.getElementById('consentModeBadge');
+    if (consent.mode === 'advanced') {
+      modeBadge.textContent = 'Advanced';
+      modeBadge.className = 'consent-mode-badge mode-advanced';
+    } else if (consent.mode === 'basic') {
+      modeBadge.textContent = 'Basic';
+      modeBadge.className = 'consent-mode-badge mode-basic';
+    } else {
+      modeBadge.textContent = '';
+      modeBadge.className = 'consent-mode-badge';
+    }
+
+    // Issue count
+    var issueCount = document.getElementById('consentIssueCount');
+    var errors = 0;
+    var warnings = 0;
+    for (var i = 0; i < consent.issues.length; i++) {
+      if (consent.issues[i].severity === 'error') errors++;
+      else warnings++;
+    }
+    if (errors > 0) {
+      issueCount.textContent = errors + ' error' + (errors > 1 ? 's' : '');
+      issueCount.className = 'consent-issue-count issue-error';
+    } else if (warnings > 0) {
+      issueCount.textContent = warnings + ' warning' + (warnings > 1 ? 's' : '');
+      issueCount.className = 'consent-issue-count issue-warning';
+    } else {
+      issueCount.textContent = 'OK';
+      issueCount.className = 'consent-issue-count issue-ok';
+    }
+
+    // Toggle expand on header click (replace to remove old listeners)
+    var header = document.getElementById('consentHeader');
+    var detail = document.getElementById('consentDetail');
+    var newHeader = header.cloneNode(true);
+    header.parentNode.replaceChild(newHeader, header);
+    newHeader.addEventListener('click', function() {
+      detail.classList.toggle('hidden');
+      newHeader.classList.toggle('expanded');
+    });
+
+    // Render sub-sections
+    renderConsentParams(consent.state);
+    renderConsentIssues(consent.issues);
+    renderConsentTimeline(consent.timeline);
+  }
+
+  function renderConsentParams(state) {
+    var container = document.getElementById('consentParams');
+    container.innerHTML = '';
+
+    var keys = Object.keys(CONSENT_PARAM_LABELS);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var config = CONSENT_PARAM_LABELS[key];
+      var value = state[key];
+
+      var row = document.createElement('div');
+      row.className = 'consent-param-row';
+
+      var nameEl = document.createElement('span');
+      nameEl.className = 'consent-param-name';
+      nameEl.textContent = config.label;
+      if (config.v2) {
+        var v2Tag = document.createElement('span');
+        v2Tag.className = 'consent-v2-tag';
+        v2Tag.textContent = 'V2';
+        nameEl.appendChild(v2Tag);
+      }
+
+      var valueEl = document.createElement('span');
+      if (value === 'granted') {
+        valueEl.className = 'consent-param-value value-granted';
+        valueEl.textContent = 'granted';
+      } else if (value === 'denied') {
+        valueEl.className = 'consent-param-value value-denied';
+        valueEl.textContent = 'denied';
+      } else {
+        valueEl.className = 'consent-param-value value-unset';
+        valueEl.textContent = 'not set';
+      }
+
+      row.appendChild(nameEl);
+      row.appendChild(valueEl);
+      container.appendChild(row);
+    }
+  }
+
+  function renderConsentIssues(issues) {
+    var container = document.getElementById('consentIssues');
+    container.innerHTML = '';
+
+    if (issues.length === 0) {
+      var ok = document.createElement('div');
+      ok.className = 'consent-issue-item issue-ok';
+      ok.textContent = 'No compliance issues detected';
+      container.appendChild(ok);
+      return;
+    }
+
+    for (var i = 0; i < issues.length; i++) {
+      var issue = issues[i];
+      var item = document.createElement('div');
+      item.className = 'consent-issue-item issue-' + issue.severity;
+
+      var icon = document.createElement('span');
+      icon.className = 'consent-issue-icon';
+      icon.textContent = issue.severity === 'error' ? '\u2716' : '\u26A0';
+
+      var msg = document.createElement('span');
+      msg.className = 'consent-issue-message';
+      msg.textContent = issue.message;
+
+      item.appendChild(icon);
+      item.appendChild(msg);
+      container.appendChild(item);
+    }
+  }
+
+  function renderConsentTimeline(timeline) {
+    var container = document.getElementById('consentTimeline');
+    container.innerHTML = '';
+
+    if (timeline.length === 0) return;
+
+    var title = document.createElement('div');
+    title.className = 'consent-timeline-title';
+    title.textContent = 'Timeline';
+    container.appendChild(title);
+
+    for (var i = 0; i < timeline.length; i++) {
+      var entry = timeline[i];
+      var item = document.createElement('div');
+      item.className = 'consent-timeline-item';
+
+      var dot = document.createElement('span');
+      dot.className = 'consent-timeline-dot ' + (entry.type === 'default' ? 'dot-default' : 'dot-update');
+
+      var typeEl = document.createElement('span');
+      typeEl.className = 'consent-timeline-type';
+      typeEl.textContent = 'consent.' + entry.type;
+
+      var sourceEl = document.createElement('span');
+      sourceEl.className = 'consent-timeline-source';
+      sourceEl.textContent = entry.source;
+
+      var timeEl = document.createElement('span');
+      timeEl.className = 'consent-timeline-time';
+      timeEl.textContent = formatTime(entry.timestamp);
+
+      var paramsEl = document.createElement('div');
+      paramsEl.className = 'consent-timeline-params';
+      var paramKeys = Object.keys(entry.params);
+      for (var p = 0; p < paramKeys.length; p++) {
+        var tag = document.createElement('span');
+        var val = entry.params[paramKeys[p]];
+        tag.className = 'consent-param-tag ' + (val === 'granted' ? 'tag-granted' : 'tag-denied');
+        tag.textContent = paramKeys[p] + ': ' + val;
+        paramsEl.appendChild(tag);
+      }
+
+      item.appendChild(dot);
+      item.appendChild(typeEl);
+      item.appendChild(sourceEl);
+      item.appendChild(timeEl);
+      item.appendChild(paramsEl);
+      container.appendChild(item);
+    }
   }
 
   // ─── Start ─────────────────────────────────────────────────

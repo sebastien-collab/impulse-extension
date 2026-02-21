@@ -24,6 +24,30 @@
     <!-- Platform summary badges -->
     <div class="summary-bar" id="summaryBar"></div>
 
+    <!-- Consent Mode V2 section -->
+    <div class="consent-section hidden" id="consentSection">
+      <div class="consent-header" id="consentHeader">
+        <div class="consent-header-left">
+          <span class="consent-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          <span class="consent-title">Consent Mode V2</span>
+          <span class="consent-mode-badge" id="consentModeBadge"></span>
+        </div>
+        <div class="consent-header-right">
+          <span class="consent-issue-count" id="consentIssueCount"></span>
+          <span class="consent-chevron" id="consentChevron">&#9654;</span>
+        </div>
+      </div>
+      <div class="consent-detail hidden" id="consentDetail">
+        <div class="consent-params" id="consentParams"></div>
+        <div class="consent-issues" id="consentIssues"></div>
+        <div class="consent-timeline" id="consentTimeline"></div>
+      </div>
+    </div>
+
     <!-- Pixel list -->
     <div class="pixel-list" id="pixelList">
       <div class="empty-state" id="emptyState">
