@@ -1,5 +1,5 @@
 /**
- * IMPULSE — Background Service Worker
+ * IMPULSION — Background Service Worker
  *
  * Responsibilities:
  * 1. Register MAIN world content script (injected.js)
@@ -53,7 +53,7 @@ function getTabData(tabId) {
 }
 
 function addPixelDetection(tabId, platform, pixelId, source) {
-  var config = self.IMPULSE_PIXELS[platform];
+  var config = self.IMPULSION_PIXELS[platform];
   if (!config) return;
 
   var tabData = getTabData(tabId);
@@ -431,18 +431,18 @@ function updateBadge(tabId) {
 // ═══════════════════════════════════════════════════════════════
 
 // Build URL patterns from pixel config
-var urlPatterns = self.IMPULSE_URL_FILTERS || ['<all_urls>'];
+var urlPatterns = self.IMPULSION_URL_FILTERS || ['<all_urls>'];
 
 chrome.webRequest.onBeforeRequest.addListener(
   function(details) {
     if (details.tabId < 0) return; // non-tab requests (e.g., service worker)
 
     var url = details.url;
-    var pixelKeys = Object.keys(self.IMPULSE_PIXELS);
+    var pixelKeys = Object.keys(self.IMPULSION_PIXELS);
 
     for (var i = 0; i < pixelKeys.length; i++) {
       var platform = pixelKeys[i];
-      var config = self.IMPULSE_PIXELS[platform];
+      var config = self.IMPULSION_PIXELS[platform];
 
       for (var j = 0; j < config.networkPatterns.length; j++) {
         if (config.networkPatterns[j].test(url)) {
@@ -573,7 +573,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
 function extractIdFromArgs(tabId, platform, args) {
   if (!args) return;
-  var config = self.IMPULSE_PIXELS[platform];
+  var config = self.IMPULSION_PIXELS[platform];
   if (!config) return;
 
   var argsStr = typeof args === 'string' ? args : JSON.stringify(args);
@@ -651,13 +651,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
 
 async function registerInjectedScript() {
   try {
-    await chrome.scripting.unregisterContentScripts({ ids: ['impulse-injected'] });
+    await chrome.scripting.unregisterContentScripts({ ids: ['impulsion-injected'] });
   } catch (e) {
     // Not registered yet — that's fine
   }
 
   await chrome.scripting.registerContentScripts([{
-    id: 'impulse-injected',
+    id: 'impulsion-injected',
     matches: ['http://*/*', 'https://*/*'],
     js: ['content/injected.js'],
     runAt: 'document_start',

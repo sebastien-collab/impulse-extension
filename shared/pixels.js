@@ -1,12 +1,12 @@
 /**
- * IMPULSE — Universal Pixel Definitions
+ * IMPULSION — Universal Pixel Definitions
  * Central configuration for all supported tracking platforms.
  * Used by: injected.js, content.js, service-worker.js, popup.js
  */
 (function(root) {
   'use strict';
 
-  root.IMPULSE_PIXELS = {
+  root.IMPULSION_PIXELS = {
 
     // ─── Google Tag Manager ───────────────────────────────────
     gtm: {
@@ -250,19 +250,19 @@
   };
 
   // Build flat list of all domains for webRequest filter
-  root.IMPULSE_ALL_DOMAINS = [];
+  root.IMPULSION_ALL_DOMAINS = [];
   var seen = {};
-  Object.keys(root.IMPULSE_PIXELS).forEach(function(key) {
-    root.IMPULSE_PIXELS[key].domains.forEach(function(d) {
+  Object.keys(root.IMPULSION_PIXELS).forEach(function(key) {
+    root.IMPULSION_PIXELS[key].domains.forEach(function(d) {
       if (!seen[d]) {
         seen[d] = true;
-        root.IMPULSE_ALL_DOMAINS.push(d);
+        root.IMPULSION_ALL_DOMAINS.push(d);
       }
     });
   });
 
   // Build webRequest URL filter patterns
-  root.IMPULSE_URL_FILTERS = root.IMPULSE_ALL_DOMAINS.map(function(d) {
+  root.IMPULSION_URL_FILTERS = root.IMPULSION_ALL_DOMAINS.map(function(d) {
     return '*://' + d + '/*';
   });
 

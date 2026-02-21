@@ -1,4 +1,4 @@
-# Impulse — Chrome Extension
+# Impulsion — Chrome Extension
 
 ## Description
 Debugger universel de pixels et tags de tracking pour media buyers.

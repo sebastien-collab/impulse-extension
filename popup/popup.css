@@ -1,5 +1,5 @@
 /**
- * IMPULSE — Popup Styles
+ * IMPULSION — Popup Styles
  * Dark theme, 400px wide, up to 600px tall
  */
 
@@ -19,7 +19,7 @@ body {
   overflow: hidden;
 }
 
-.impulse-app {
+.impulsion-app {
   display: flex;
   flex-direction: column;
   height: 100%;

@@ -1,5 +1,5 @@
 /**
- * IMPULSE — Content Script (ISOLATED world)
+ * IMPULSION — Content Script (ISOLATED world)
  *
  * Bridges the page context (injected.js) with the background
  * service worker. Also scans the DOM for pixel script tags
@@ -8,7 +8,7 @@
 (function() {
   'use strict';
 
-  var MSG_SOURCE = 'IMPULSE_PIXEL_DATA';
+  var MSG_SOURCE = 'IMPULSION_PIXEL_DATA';
 
   // ─── 1. Inject the MAIN world script into the page ─────────
   function injectPageScript() {

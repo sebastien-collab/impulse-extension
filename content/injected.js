@@ -1,5 +1,5 @@
 /**
- * IMPULSE — Page Context Interceptor (MAIN world)
+ * IMPULSION — Page Context Interceptor (MAIN world)
  *
  * Runs in the actual page JavaScript context to intercept tracking
  * pixel function calls. Must execute at document_start BEFORE any
@@ -11,10 +11,10 @@
   'use strict';
 
   // Guard against double execution
-  if (window.__IMPULSE_INJECTED__) return;
-  window.__IMPULSE_INJECTED__ = true;
+  if (window.__IMPULSION_INJECTED__) return;
+  window.__IMPULSION_INJECTED__ = true;
 
-  var MSG_SOURCE = 'IMPULSE_PIXEL_DATA';
+  var MSG_SOURCE = 'IMPULSION_PIXEL_DATA';
 
   // ─── Utility: Send data to content script ──────────────────
   function emit(type, data) {
@@ -62,7 +62,7 @@
   // ─── Strategy 1: Wrap an existing function ─────────────────
   function wrapFunction(parent, funcName, label, platform) {
     if (typeof parent[funcName] !== 'function') return false;
-    if (parent[funcName].__impulse_wrapped__) return false;
+    if (parent[funcName].__impulsion_wrapped__) return false;
 
     var original = parent[funcName];
     parent[funcName] = function() {
@@ -74,13 +74,13 @@
       });
       return original.apply(this, args);
     };
-    parent[funcName].__impulse_wrapped__ = true;
+    parent[funcName].__impulsion_wrapped__ = true;
 
     // Preserve properties from the original function
     var props = Object.keys(original);
     for (var i = 0; i < props.length; i++) {
       var prop = props[i];
-      if (prop !== '__impulse_wrapped__') {
+      if (prop !== '__impulsion_wrapped__') {
         try { parent[funcName][prop] = original[prop]; } catch(e) {}
       }
     }
@@ -104,7 +104,7 @@
     function doIntercept() {
       var arr = window[arrayName];
       if (!arr || typeof arr.push !== 'function') return false;
-      if (arr.push.__impulse_wrapped__) return false;
+      if (arr.push.__impulsion_wrapped__) return false;
 
       var originalPush = arr.push;
       arr.push = function() {
@@ -116,7 +116,7 @@
         });
         return originalPush.apply(this, args);
       };
-      arr.push.__impulse_wrapped__ = true;
+      arr.push.__impulsion_wrapped__ = true;
       return true;
     }
 

@@ -1,5 +1,5 @@
 /**
- * IMPULSE — Popup Logic
+ * IMPULSION — Popup Logic
  *
  * Queries the service worker for the current tab's pixel data,
  * then renders the UI (pixel cards, events, summary bar).
@@ -21,14 +21,14 @@
         { type: 'get_tab_data', tabId: currentTabId },
         function(response) {
           if (chrome.runtime.lastError) {
-            console.error('Impulse:', chrome.runtime.lastError.message);
+            console.error('Impulsion:', chrome.runtime.lastError.message);
             return;
           }
           render(response);
         }
       );
     } catch (e) {
-      console.error('Impulse: init error', e);
+      console.error('Impulsion: init error', e);
     }
   }
 

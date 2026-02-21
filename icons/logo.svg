@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Impulsion isometric cube logo -->
+  <!-- Top face -->
+  <polygon points="256,66 418,158 256,249 94,158" fill="black"/>
+  <!-- Right face -->
+  <polygon points="262,259 422,164 420,351 260,446" fill="black"/>
+  <!-- Left face (L-shape with bottom-left cutout) -->
+  <path d="M 90,164 L 250,259 L 252,446 L 170,399 L 170,296 L 90,248 Z" fill="black"/>
+</svg>
