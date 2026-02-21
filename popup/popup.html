@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impulse</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="impulse-app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <span class="logo">I</span>
+        <h1 class="title">Impulse</h1>
+      </div>
+      <div class="header-right">
+        <span class="pixel-count" id="pixelCount">0</span>
+        <span class="pixel-label">pixels</span>
+      </div>
+    </header>
+
+    <!-- Platform summary badges -->
+    <div class="summary-bar" id="summaryBar"></div>
+
+    <!-- Pixel list -->
+    <div class="pixel-list" id="pixelList">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10" opacity="0.3"/>
+            <circle cx="12" cy="12" r="6" opacity="0.5"/>
+            <circle cx="12" cy="12" r="2"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="22" y2="12"/>
+          </svg>
+        </div>
+        <p class="empty-text">No pixels detected</p>
+        <p class="empty-hint">Navigate to a page with tracking pixels</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="footer-text">Impulse v1.0 — Universal Pixel Debugger</span>
+    </footer>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
