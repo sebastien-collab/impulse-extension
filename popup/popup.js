@@ -60,6 +60,9 @@
         currentOrigin = url.origin;
       } catch (e) {}
 
+      // Load color history mini bar
+      loadQuickColorHistory();
+
       // Request data from service worker
       chrome.runtime.sendMessage(
         { type: 'get_tab_data', tabId: currentTabId },
@@ -1016,14 +1019,28 @@
     chrome.scripting.executeScript({
       target: { tabId: currentTabId },
       func: function() {
-        return new EyeDropper().open().then(function(result) {
+        // Abort any previous EyeDropper to prevent freezing
+        if (window.__impulsionEyeDropperAbort) {
+          try { window.__impulsionEyeDropperAbort.abort(); } catch (e) {}
+          window.__impulsionEyeDropperAbort = null;
+        }
+        var controller = new AbortController();
+        window.__impulsionEyeDropperAbort = controller;
+
+        return new EyeDropper().open({ signal: controller.signal }).then(function(result) {
+          window.__impulsionEyeDropperAbort = null;
           chrome.storage.local.get('colorHistory', function(data) {
             var history = data.colorHistory || [];
+            // Avoid duplicates at the top
+            if (history[0] === result.sRGBHex) history.shift();
             history.unshift(result.sRGBHex);
             if (history.length > 10) history = history.slice(0, 10);
             chrome.storage.local.set({ colorHistory: history, lastColor: result.sRGBHex });
           });
           return result.sRGBHex;
+        }).catch(function() {
+          window.__impulsionEyeDropperAbort = null;
+          return null;
         });
       }
     }).then(function(results) {
@@ -1032,6 +1049,7 @@
         if (panel) panel.classList.remove('hidden');
         renderColorResult(results[0].result);
         renderColorHistory();
+        loadQuickColorHistory();
       }
     }).catch(function() {
       // User cancelled or API not available
@@ -1127,6 +1145,40 @@
 
       historyEl.appendChild(rowEl);
       area.appendChild(historyEl);
+    });
+  }
+
+  // --- Mini Color History (below toolbar) ---
+  function loadQuickColorHistory() {
+    chrome.storage.local.get('colorHistory', function(data) {
+      var history = data.colorHistory || [];
+      var container = document.getElementById('quickColorHistory');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (history.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      container.classList.remove('hidden');
+      var max = Math.min(history.length, 5);
+      for (var i = 0; i < max; i++) {
+        var swatch = document.createElement('div');
+        swatch.className = 'mini-color-swatch';
+        swatch.style.backgroundColor = history[i];
+        swatch.title = history[i];
+        swatch.setAttribute('data-hex', history[i]);
+        swatch.addEventListener('click', function() {
+          var hex = this.getAttribute('data-hex');
+          navigator.clipboard.writeText(hex);
+          var panel = document.getElementById('quickColorPanel');
+          if (panel) panel.classList.remove('hidden');
+          renderColorResult(hex);
+          showToast(this, t('tools_copy'));
+        });
+        container.appendChild(swatch);
+      }
     });
   }
 
