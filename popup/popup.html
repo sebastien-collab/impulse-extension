@@ -50,6 +50,10 @@
         <span class="tab-icon" id="tabIconStack"></span>
         <span data-i18n="tab_stack">Stack</span>
       </button>
+      <button class="tab-btn" data-tab="seo">
+        <span class="tab-icon" id="tabIconSeo"></span>
+        <span data-i18n="tab_seo">SEO</span>
+      </button>
       <button class="tab-btn" data-tab="tools">
         <span class="tab-icon" id="tabIconTools"></span>
         <span data-i18n="tab_tools">Tools</span>
@@ -140,6 +144,23 @@
       </div>
     </div>
 
+    <!-- Tab: SEO -->
+    <div class="tab-content" data-tab="seo">
+      <div class="seo-container" id="seoContainer">
+        <div class="empty-state" id="seoEmptyState">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <p class="empty-text" data-i18n="seo_no_data">No SEO data available</p>
+          <p class="empty-hint" data-i18n="seo_no_data_hint">Navigate to a page to analyze its SEO</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Tab: Tools -->
     <div class="tab-content" data-tab="tools">
       <div class="tools-container" id="toolsContainer"></div>
@@ -147,7 +168,8 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <span class="footer-text" data-i18n="footer_text">impulsion.com v2.0 — Universal Pixel Debugger</span>
+      <span class="footer-text" data-i18n="footer_text">impulsion.com v2.1 — Universal Pixel Debugger</span>
+      <a class="footer-feature-link" href="mailto:contact@impulsion.com?subject=Feature%20Request%20%E2%80%94%20Impulsion" target="_blank" data-i18n="footer_request">Suggest a feature</a>
     </footer>
 
   </div>

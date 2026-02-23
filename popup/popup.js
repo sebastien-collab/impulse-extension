@@ -11,8 +11,8 @@
   var currentDomain = null;
   var currentOrigin = null;
   var activeTab = 'pixels';
-  var currentLang = 'en';
-  var currentTheme = 'dark';
+  var currentLang = 'fr';
+  var currentTheme = 'light';
   var cachedData = null;
   var fontInspectorActive = false;
 
@@ -172,6 +172,7 @@
     setInnerHTML('tabIconConsent', icons.tab_consent);
     setInnerHTML('tabIconAdlibs', icons.tab_adlibs);
     setInnerHTML('tabIconStack', icons.tab_stack);
+    setInnerHTML('tabIconSeo', icons.tab_seo);
     setInnerHTML('tabIconTools', icons.tab_tools);
   }
 
@@ -186,6 +187,7 @@
     var events = (data && data.events) || [];
     var consent = (data && data.consent) || null;
     var techstack = (data && data.techstack) || [];
+    var seo = (data && data.seo) || null;
 
     // Update pixel count
     document.getElementById('pixelCount').textContent = pixels.length;
@@ -195,6 +197,7 @@
     renderConsentTab(consent);
     renderAdLibsTab();
     renderStackTab(techstack);
+    renderSeoTab(seo);
     renderToolsTab();
   }
 
@@ -296,8 +299,19 @@
     var idText = document.createElement('div');
     idText.className = 'pixel-id';
     if (pixel.ids && pixel.ids.length > 0) {
-      idText.textContent = pixel.ids.join(', ');
-      idText.title = pixel.ids.join('\n');
+      for (var idx = 0; idx < pixel.ids.length; idx++) {
+        var tag = document.createElement('span');
+        tag.className = 'pixel-id-tag';
+        tag.textContent = pixel.ids[idx];
+        tag.title = pixel.ids[idx];
+        tag.setAttribute('data-id', pixel.ids[idx]);
+        tag.addEventListener('click', function(e) {
+          e.stopPropagation();
+          navigator.clipboard.writeText(this.getAttribute('data-id'));
+          showToast(this, t('tools_copy'));
+        });
+        idText.appendChild(tag);
+      }
     } else {
       idText.textContent = t('id_pending');
       idText.style.fontStyle = 'italic';
@@ -799,6 +813,185 @@
     item.appendChild(badgesEl);
 
     return item;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // SEO TAB
+  // ═══════════════════════════════════════════════════════════
+
+  function renderSeoTab(seo) {
+    var container = document.getElementById('seoContainer');
+    var emptyState = document.getElementById('seoEmptyState');
+
+    // Remove existing SEO content (keep empty state)
+    var existing = container.querySelectorAll('.seo-score-section, .seo-checklist-section, .seo-headings-section, .seo-meta-section');
+    for (var r = 0; r < existing.length; r++) existing[r].remove();
+
+    if (!seo || !seo.checks || seo.checks.length === 0) {
+      emptyState.classList.remove('hidden');
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+
+    // --- Score Circle ---
+    var scoreSection = document.createElement('div');
+    scoreSection.className = 'seo-score-section';
+
+    var score = seo.score || 0;
+    var scoreColor = score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--error)';
+    var scoreClass = score >= 80 ? 'score-good' : score >= 50 ? 'score-ok' : 'score-bad';
+
+    var circleSize = 80;
+    var strokeWidth = 6;
+    var radius = (circleSize - strokeWidth) / 2;
+    var circumference = 2 * Math.PI * radius;
+    var offset = circumference - (score / 100) * circumference;
+
+    scoreSection.innerHTML = '<div class="seo-score-circle ' + scoreClass + '">' +
+      '<svg width="' + circleSize + '" height="' + circleSize + '" viewBox="0 0 ' + circleSize + ' ' + circleSize + '">' +
+      '<circle cx="' + circleSize/2 + '" cy="' + circleSize/2 + '" r="' + radius + '" fill="none" stroke="var(--border)" stroke-width="' + strokeWidth + '"/>' +
+      '<circle cx="' + circleSize/2 + '" cy="' + circleSize/2 + '" r="' + radius + '" fill="none" stroke="' + scoreColor + '" stroke-width="' + strokeWidth + '" ' +
+      'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" stroke-linecap="round" transform="rotate(-90 ' + circleSize/2 + ' ' + circleSize/2 + ')"/>' +
+      '</svg>' +
+      '<span class="seo-score-value" style="color:' + scoreColor + '">' + score + '</span>' +
+      '</div>' +
+      '<div class="seo-score-label">' + escapeHtml(t('seo_score')) + '</div>';
+
+    container.appendChild(scoreSection);
+
+    // --- Checklist ---
+    var checklistSection = document.createElement('div');
+    checklistSection.className = 'seo-checklist-section';
+
+    var checklistTitle = document.createElement('div');
+    checklistTitle.className = 'seo-section-title';
+    checklistTitle.textContent = t('seo_checklist');
+    checklistSection.appendChild(checklistTitle);
+
+    for (var i = 0; i < seo.checks.length; i++) {
+      var check = seo.checks[i];
+      var item = document.createElement('div');
+      item.className = 'seo-check-item ' + (check.pass ? 'check-pass' : 'check-fail');
+
+      var icon = document.createElement('span');
+      icon.className = 'seo-check-icon';
+      icon.textContent = check.pass ? '\u2713' : '\u2717';
+
+      var label = document.createElement('span');
+      label.className = 'seo-check-label';
+      label.textContent = t(check.key);
+
+      var detail = document.createElement('span');
+      detail.className = 'seo-check-detail';
+      detail.textContent = check.detail;
+
+      item.appendChild(icon);
+      item.appendChild(label);
+      item.appendChild(detail);
+      checklistSection.appendChild(item);
+    }
+
+    container.appendChild(checklistSection);
+
+    // --- Heading Tree ---
+    if (seo.headings && seo.headings.length > 0) {
+      var headingsSection = document.createElement('div');
+      headingsSection.className = 'seo-headings-section';
+
+      var headingsTitle = document.createElement('div');
+      headingsTitle.className = 'seo-section-title';
+      headingsTitle.textContent = t('seo_headings');
+      headingsSection.appendChild(headingsTitle);
+
+      // Heading count summary
+      var counts = {};
+      for (var h = 0; h < seo.headings.length; h++) {
+        var tag = seo.headings[h].tag;
+        counts[tag] = (counts[tag] || 0) + 1;
+      }
+      var countBar = document.createElement('div');
+      countBar.className = 'seo-heading-counts';
+      var tagNames = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+      for (var c = 0; c < tagNames.length; c++) {
+        if (counts[tagNames[c]]) {
+          var countBadge = document.createElement('span');
+          countBadge.className = 'seo-heading-count-badge';
+          countBadge.textContent = tagNames[c] + ': ' + counts[tagNames[c]];
+          countBar.appendChild(countBadge);
+        }
+      }
+      headingsSection.appendChild(countBar);
+
+      // Tree
+      var tree = document.createElement('div');
+      tree.className = 'seo-heading-tree';
+      for (var j = 0; j < seo.headings.length; j++) {
+        var heading = seo.headings[j];
+        var level = parseInt(heading.tag.charAt(1)) - 1;
+        var row = document.createElement('div');
+        row.className = 'seo-heading-row';
+        row.style.paddingLeft = (level * 16 + 8) + 'px';
+
+        var tagEl = document.createElement('span');
+        tagEl.className = 'seo-heading-tag';
+        tagEl.textContent = heading.tag;
+
+        var textEl = document.createElement('span');
+        textEl.className = 'seo-heading-text';
+        textEl.textContent = heading.text;
+        textEl.title = heading.text;
+
+        row.appendChild(tagEl);
+        row.appendChild(textEl);
+        tree.appendChild(row);
+      }
+      headingsSection.appendChild(tree);
+      container.appendChild(headingsSection);
+    }
+
+    // --- Meta Info ---
+    var metaSection = document.createElement('div');
+    metaSection.className = 'seo-meta-section';
+
+    var metaTitle = document.createElement('div');
+    metaTitle.className = 'seo-section-title';
+    metaTitle.textContent = t('seo_meta_info');
+    metaSection.appendChild(metaTitle);
+
+    var metaItems = [];
+    if (seo.title) metaItems.push({ label: 'Title', value: seo.title });
+    if (seo.metaDesc) metaItems.push({ label: 'Meta Description', value: seo.metaDesc });
+    if (seo.canonical) metaItems.push({ label: 'Canonical', value: seo.canonical });
+    if (seo.lang) metaItems.push({ label: 'Lang', value: seo.lang });
+    if (seo.ogTags) {
+      var ogKeys = Object.keys(seo.ogTags);
+      for (var o = 0; o < ogKeys.length; o++) {
+        metaItems.push({ label: ogKeys[o], value: seo.ogTags[ogKeys[o]] });
+      }
+    }
+
+    for (var mi = 0; mi < metaItems.length; mi++) {
+      var metaRow = document.createElement('div');
+      metaRow.className = 'seo-meta-row';
+
+      var metaLabel = document.createElement('span');
+      metaLabel.className = 'seo-meta-label';
+      metaLabel.textContent = metaItems[mi].label;
+
+      var metaValue = document.createElement('span');
+      metaValue.className = 'seo-meta-value';
+      metaValue.textContent = metaItems[mi].value;
+      metaValue.title = metaItems[mi].value;
+
+      metaRow.appendChild(metaLabel);
+      metaRow.appendChild(metaValue);
+      metaSection.appendChild(metaRow);
+    }
+
+    if (metaItems.length > 0) {
+      container.appendChild(metaSection);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════

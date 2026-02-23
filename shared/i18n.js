@@ -84,7 +84,40 @@
       tools_copy: 'Copied!',
 
       // Footer
-      footer_text: 'impulsion.com v2.0 \u2014 Universal Pixel Debugger'
+      footer_text: 'impulsion.com v2.1 \u2014 Universal Pixel Debugger',
+      footer_request: 'Suggest a feature',
+
+      // SEO tab
+      tab_seo: 'SEO',
+      seo_score: 'SEO Score',
+      seo_checklist: 'Checklist',
+      seo_headings: 'Heading Structure',
+      seo_meta_info: 'Meta Information',
+      seo_title: 'Title',
+      seo_meta_desc: 'Meta Description',
+      seo_h1: 'Single H1',
+      seo_heading_hierarchy: 'Heading Hierarchy',
+      seo_img_alt: 'Images Alt',
+      seo_canonical: 'Canonical',
+      seo_og: 'Open Graph',
+      seo_robots: 'Meta Robots',
+      seo_lang: 'Lang Attribute',
+      seo_viewport: 'Viewport',
+      seo_no_data: 'No SEO data available',
+      seo_no_data_hint: 'Navigate to a page to analyze its SEO',
+      seo_chars: 'chars',
+      seo_present: 'Present',
+      seo_missing: 'Missing',
+      seo_ok: 'OK',
+      seo_no_skip: 'No level skipped',
+      seo_skip_detected: 'Level skip detected',
+      seo_all_have_alt: 'All images have alt',
+      seo_missing_alt: 'images without alt',
+      seo_no_images: 'No images',
+      seo_not_noindex: 'Not noindex',
+      seo_noindex: 'Noindex detected',
+      seo_defined: 'Defined',
+      seo_not_defined: 'Not defined'
     },
 
     fr: {
@@ -157,7 +190,40 @@
       tools_color_history: 'Historique',
       tools_copy: 'Copi\u00e9 !',
 
-      footer_text: 'impulsion.com v2.0 \u2014 Debugger Universel de Pixels'
+      footer_text: 'impulsion.com v2.1 \u2014 Debugger Universel de Pixels',
+      footer_request: 'Sugg\u00e9rer une fonctionnalit\u00e9',
+
+      // SEO tab
+      tab_seo: 'SEO',
+      seo_score: 'Score SEO',
+      seo_checklist: 'Checklist',
+      seo_headings: 'Structure des titres',
+      seo_meta_info: 'Informations Meta',
+      seo_title: 'Title',
+      seo_meta_desc: 'Meta Description',
+      seo_h1: 'H1 unique',
+      seo_heading_hierarchy: 'Hi\u00e9rarchie des titres',
+      seo_img_alt: 'Images Alt',
+      seo_canonical: 'Canonical',
+      seo_og: 'Open Graph',
+      seo_robots: 'Meta Robots',
+      seo_lang: 'Attribut Lang',
+      seo_viewport: 'Viewport',
+      seo_no_data: 'Aucune donn\u00e9e SEO disponible',
+      seo_no_data_hint: 'Navigue vers une page pour analyser son SEO',
+      seo_chars: 'caract.',
+      seo_present: 'Pr\u00e9sent',
+      seo_missing: 'Manquant',
+      seo_ok: 'OK',
+      seo_no_skip: 'Aucun saut de niveau',
+      seo_skip_detected: 'Saut de niveau d\u00e9tect\u00e9',
+      seo_all_have_alt: 'Toutes les images ont un alt',
+      seo_missing_alt: 'images sans alt',
+      seo_no_images: 'Aucune image',
+      seo_not_noindex: 'Pas de noindex',
+      seo_noindex: 'Noindex d\u00e9tect\u00e9',
+      seo_defined: 'D\u00e9fini',
+      seo_not_defined: 'Non d\u00e9fini'
     }
   };
 

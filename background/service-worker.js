@@ -48,7 +48,8 @@ function getTabData(tabId) {
       pixels: new Map(),
       events: [],
       consent: createEmptyConsentState(),
-      techstack: []
+      techstack: [],
+      seo: null
     });
   }
   return tabStore.get(tabId);
@@ -359,7 +360,8 @@ function persistTabData(tabId) {
     pixels: {},
     events: tabData.events,
     consent: tabData.consent,
-    techstack: tabData.techstack || []
+    techstack: tabData.techstack || [],
+    seo: tabData.seo || null
   };
 
   tabData.pixels.forEach(function(pixel, platform) {
@@ -388,7 +390,8 @@ function restoreTabData(tabId) {
       pixels: new Map(),
       events: stored.events || [],
       consent: stored.consent || createEmptyConsentState(),
-      techstack: stored.techstack || []
+      techstack: stored.techstack || [],
+      seo: stored.seo || null
     };
 
     Object.keys(stored.pixels).forEach(function(platform) {
@@ -573,6 +576,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       }
       break;
 
+    case 'seo_scan_results':
+      if (message.data) {
+        var seoTabData = getTabData(tabId);
+        seoTabData.seo = message.data;
+        persistTabData(tabId);
+      }
+      break;
+
     case 'techstack_results':
     case 'techstack_globals':
       if (Array.isArray(message.data)) {
@@ -639,7 +650,7 @@ function handleGetTabData(tabId, sendResponse) {
     if (restored) {
       sendResponse(serializeTabData(restored));
     } else {
-      sendResponse({ pixels: [], events: [], consent: createEmptyConsentState(), techstack: [] });
+      sendResponse({ pixels: [], events: [], consent: createEmptyConsentState(), techstack: [], seo: null });
     }
   });
 }
@@ -663,7 +674,7 @@ function serializeTabData(tabData) {
   // Return last 200 events
   var events = tabData.events.slice(-200);
 
-  return { pixels: pixels, events: events, consent: tabData.consent, techstack: tabData.techstack || [] };
+  return { pixels: pixels, events: events, consent: tabData.consent, techstack: tabData.techstack || [], seo: tabData.seo || null };
 }
 
 // ═══════════════════════════════════════════════════════════════

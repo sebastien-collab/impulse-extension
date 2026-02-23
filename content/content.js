@@ -365,7 +365,173 @@
     }
   });
 
-  // ─── 6. DOM Scanning — extract pixel IDs from script tags ──
+  // ─── 6. SEO Scan ──────────────────────────────────────────
+
+  function scanSEO() {
+    var checks = [];
+    var score = 0;
+
+    // 1. Title (10 pts)
+    var title = document.title || '';
+    var titleLen = title.length;
+    var titlePass = titleLen >= 30 && titleLen <= 65;
+    checks.push({
+      key: 'seo_title',
+      pass: titlePass,
+      detail: titleLen > 0 ? titleLen + ' ' + 'chars' : 'Missing',
+      points: titlePass ? 10 : 0
+    });
+    score += titlePass ? 10 : 0;
+
+    // 2. Meta Description (10 pts)
+    var metaDescEl = document.querySelector('meta[name="description"]');
+    var metaDesc = metaDescEl ? (metaDescEl.getAttribute('content') || '') : '';
+    var metaDescLen = metaDesc.length;
+    var metaDescPass = metaDescLen >= 120 && metaDescLen <= 160;
+    checks.push({
+      key: 'seo_meta_desc',
+      pass: metaDescPass,
+      detail: metaDescLen > 0 ? metaDescLen + ' chars' : 'Missing',
+      points: metaDescPass ? 10 : 0
+    });
+    score += metaDescPass ? 10 : 0;
+
+    // 3. Single H1 (10 pts)
+    var h1s = document.querySelectorAll('h1');
+    var h1Pass = h1s.length === 1;
+    checks.push({
+      key: 'seo_h1',
+      pass: h1Pass,
+      detail: h1s.length + ' H1',
+      points: h1Pass ? 10 : 0
+    });
+    score += h1Pass ? 10 : 0;
+
+    // 4. Heading Hierarchy (15 pts)
+    var allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    var headings = [];
+    var hierarchyPass = true;
+    var prevLevel = 0;
+    for (var hi = 0; hi < allHeadings.length; hi++) {
+      var hTag = allHeadings[hi].tagName;
+      var hLevel = parseInt(hTag.charAt(1));
+      var hText = (allHeadings[hi].textContent || '').trim();
+      if (hText.length > 120) hText = hText.substring(0, 120) + '...';
+      headings.push({ tag: hTag, text: hText });
+      if (prevLevel > 0 && hLevel > prevLevel + 1) {
+        hierarchyPass = false;
+      }
+      prevLevel = hLevel;
+    }
+    checks.push({
+      key: 'seo_heading_hierarchy',
+      pass: hierarchyPass,
+      detail: hierarchyPass ? 'OK' : 'Skip detected',
+      points: hierarchyPass ? 15 : 0
+    });
+    score += hierarchyPass ? 15 : 0;
+
+    // 5. Images Alt (15 pts)
+    var images = document.querySelectorAll('img');
+    var imgsNoAlt = 0;
+    for (var ii = 0; ii < images.length; ii++) {
+      var alt = images[ii].getAttribute('alt');
+      if (alt === null || alt.trim() === '') imgsNoAlt++;
+    }
+    var imgPass = images.length === 0 || imgsNoAlt === 0;
+    var imgDetail = images.length === 0 ? 'No images' : (imgsNoAlt === 0 ? 'All OK' : imgsNoAlt + '/' + images.length + ' missing');
+    checks.push({
+      key: 'seo_img_alt',
+      pass: imgPass,
+      detail: imgDetail,
+      points: imgPass ? 15 : 0
+    });
+    score += imgPass ? 15 : 0;
+
+    // 6. Canonical (10 pts)
+    var canonicalEl = document.querySelector('link[rel="canonical"]');
+    var canonical = canonicalEl ? (canonicalEl.getAttribute('href') || '') : '';
+    var canonicalPass = canonical.length > 0;
+    checks.push({
+      key: 'seo_canonical',
+      pass: canonicalPass,
+      detail: canonicalPass ? 'Present' : 'Missing',
+      points: canonicalPass ? 10 : 0
+    });
+    score += canonicalPass ? 10 : 0;
+
+    // 7. Open Graph (10 pts)
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    var ogDesc = document.querySelector('meta[property="og:description"]');
+    var ogTags = {};
+    var ogMetas = document.querySelectorAll('meta[property^="og:"]');
+    for (var og = 0; og < ogMetas.length; og++) {
+      var prop = ogMetas[og].getAttribute('property');
+      ogTags[prop] = ogMetas[og].getAttribute('content') || '';
+    }
+    var ogPass = ogTitle !== null && ogDesc !== null;
+    checks.push({
+      key: 'seo_og',
+      pass: ogPass,
+      detail: ogPass ? 'OK' : 'Missing',
+      points: ogPass ? 10 : 0
+    });
+    score += ogPass ? 10 : 0;
+
+    // 8. Meta Robots (10 pts)
+    var robotsEl = document.querySelector('meta[name="robots"]');
+    var robotsContent = robotsEl ? (robotsEl.getAttribute('content') || '') : '';
+    var noindex = robotsContent.toLowerCase().indexOf('noindex') !== -1;
+    var robotsPass = !noindex;
+    checks.push({
+      key: 'seo_robots',
+      pass: robotsPass,
+      detail: noindex ? 'Noindex' : 'OK',
+      points: robotsPass ? 10 : 0
+    });
+    score += robotsPass ? 10 : 0;
+
+    // 9. Lang attribute (5 pts)
+    var lang = document.documentElement.getAttribute('lang') || '';
+    var langPass = lang.length > 0;
+    checks.push({
+      key: 'seo_lang',
+      pass: langPass,
+      detail: langPass ? lang : 'Missing',
+      points: langPass ? 5 : 0
+    });
+    score += langPass ? 5 : 0;
+
+    // 10. Viewport (5 pts)
+    var viewportEl = document.querySelector('meta[name="viewport"]');
+    var viewportPass = viewportEl !== null;
+    checks.push({
+      key: 'seo_viewport',
+      pass: viewportPass,
+      detail: viewportPass ? 'Present' : 'Missing',
+      points: viewportPass ? 5 : 0
+    });
+    score += viewportPass ? 5 : 0;
+
+    try {
+      chrome.runtime.sendMessage({
+        type: 'seo_scan_results',
+        data: {
+          score: score,
+          checks: checks,
+          headings: headings,
+          title: title,
+          metaDesc: metaDesc,
+          canonical: canonical,
+          ogTags: Object.keys(ogTags).length > 0 ? ogTags : null,
+          lang: lang || null
+        },
+        timestamp: Date.now()
+      });
+    } catch (e) {}
+  }
+
+  // ─── 7. DOM Scanning — extract pixel IDs from script tags ──
 
   function scanDOM() {
     var detected = [];
@@ -517,6 +683,7 @@
   function runAllScans() {
     scanDOM();
     scanTechStack();
+    scanSEO();
   }
 
   if (document.readyState === 'loading') {
