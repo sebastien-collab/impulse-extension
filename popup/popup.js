@@ -2,7 +2,7 @@
  * IMPULSION — Popup Logic
  *
  * Tabbed UI with i18n support.
- * Tabs: Pixels, Consent, Ad Libraries, Stack, Tools
+ * Tabs: Pixels, Consent, Ad Libraries, Stack, SEO
  */
 (function() {
   'use strict';
@@ -44,6 +44,7 @@
       setupTabNavigation();
       setupLanguageToggle();
       injectTabIcons();
+      setupQuickTools();
       applyTranslations();
 
       // Query active tab
@@ -159,10 +160,6 @@
     for (var i = 0; i < panels.length; i++) {
       panels[i].classList.toggle('active', panels[i].getAttribute('data-tab') === tabName);
     }
-    // Refresh tools tab data when switching to it
-    if (tabName === 'tools') {
-      loadCookieCount();
-    }
   }
 
   function injectTabIcons() {
@@ -173,7 +170,11 @@
     setInnerHTML('tabIconAdlibs', icons.tab_adlibs);
     setInnerHTML('tabIconStack', icons.tab_stack);
     setInnerHTML('tabIconSeo', icons.tab_seo);
-    setInnerHTML('tabIconTools', icons.tab_tools);
+    // Quick toolbar icons
+    setInnerHTML('qtIconEyeDropper', icons.eyedropper);
+    setInnerHTML('qtIconFont', icons.font);
+    setInnerHTML('qtIconCookies', icons.cookie);
+    setInnerHTML('qtIconCache', icons.cache);
   }
 
   function setInnerHTML(id, html) {
@@ -198,7 +199,7 @@
     renderAdLibsTab();
     renderStackTab(techstack);
     renderSeoTab(seo);
-    renderToolsTab();
+    loadCookieCount();
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -995,136 +996,22 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // TOOLS TAB
+  // QUICK TOOLS BAR
   // ═══════════════════════════════════════════════════════════
 
-  function renderToolsTab() {
-    var container = document.getElementById('toolsContainer');
-    container.innerHTML = '';
+  function setupQuickTools() {
+    var edBtn = document.getElementById('qtEyeDropper');
+    var fiBtn = document.getElementById('qtFontInspector');
+    var ckBtn = document.getElementById('qtClearCookies');
+    var caBtn = document.getElementById('qtClearCache');
 
-    var icons = window.IMPULSION_ICONS || {};
+    if (edBtn) edBtn.addEventListener('click', handleEyeDropper);
+    if (fiBtn) fiBtn.addEventListener('click', handleFontInspector);
+    if (ckBtn) ckBtn.addEventListener('click', handleClearCookies);
+    if (caBtn) caBtn.addEventListener('click', handleClearCache);
 
-    // --- Eye Dropper Section ---
-    var edSection = document.createElement('div');
-    edSection.className = 'tool-section';
-
-    var edHeader = document.createElement('div');
-    edHeader.className = 'tool-section-header';
-    edHeader.innerHTML = icons.eyedropper || '';
-    var edTitle = document.createElement('span');
-    edTitle.className = 'tool-section-title';
-    edTitle.textContent = t('tools_eyedropper');
-    edHeader.appendChild(edTitle);
-    edSection.appendChild(edHeader);
-
-    var edBtn = document.createElement('button');
-    edBtn.className = 'tool-action-btn';
-    edBtn.textContent = t('tools_eyedropper_btn');
-    edBtn.addEventListener('click', handleEyeDropper);
-    edSection.appendChild(edBtn);
-
-    var edHint = document.createElement('div');
-    edHint.className = 'tool-hint';
-    edHint.textContent = t('tools_eyedropper_hint');
-    edSection.appendChild(edHint);
-
-    // Color result area (filled dynamically)
-    var edResultArea = document.createElement('div');
-    edResultArea.id = 'colorResultArea';
-    edSection.appendChild(edResultArea);
-
-    container.appendChild(edSection);
-
-    // Load color history
-    renderColorHistory();
-
-    // --- Divider ---
-    var div1 = document.createElement('div');
-    div1.className = 'tool-divider';
-    container.appendChild(div1);
-
-    // --- Font Inspector Section ---
-    var fiSection = document.createElement('div');
-    fiSection.className = 'tool-section';
-
-    var fiHeader = document.createElement('div');
-    fiHeader.className = 'tool-section-header';
-    fiHeader.innerHTML = icons.font || '';
-    var fiTitle = document.createElement('span');
-    fiTitle.className = 'tool-section-title';
-    fiTitle.textContent = t('tools_font');
-    fiHeader.appendChild(fiTitle);
-    fiSection.appendChild(fiHeader);
-
-    var fiBtn = document.createElement('button');
-    fiBtn.className = 'tool-action-btn' + (fontInspectorActive ? ' active' : '');
-    fiBtn.textContent = fontInspectorActive ? t('tools_font_btn_off') : t('tools_font_btn_on');
-    fiBtn.addEventListener('click', handleFontInspector);
-    fiSection.appendChild(fiBtn);
-
-    var fiHint = document.createElement('div');
-    fiHint.className = 'tool-hint';
-    fiHint.textContent = t('tools_font_hint');
-    fiSection.appendChild(fiHint);
-
-    container.appendChild(fiSection);
-
-    // --- Divider ---
-    var div2 = document.createElement('div');
-    div2.className = 'tool-divider';
-    container.appendChild(div2);
-
-    // --- Clear Data Section ---
-    var clSection = document.createElement('div');
-    clSection.className = 'tool-section';
-
-    var clHeader = document.createElement('div');
-    clHeader.className = 'tool-section-header';
-    clHeader.innerHTML = icons.trash || '';
-    var clTitle = document.createElement('span');
-    clTitle.className = 'tool-section-title';
-    clTitle.textContent = t('tools_clear');
-    clHeader.appendChild(clTitle);
-    clSection.appendChild(clHeader);
-
-    // Cookie count
-    var clInfo = document.createElement('div');
-    clInfo.className = 'clear-info';
-    var clLabel = document.createElement('span');
-    clLabel.className = 'clear-info-label';
-    clLabel.textContent = t('tools_cookies');
-    var clCount = document.createElement('span');
-    clCount.className = 'clear-info-count';
-    clCount.id = 'cookieCount';
-    clCount.textContent = '...';
-    clInfo.appendChild(clLabel);
-    clInfo.appendChild(clCount);
-    clSection.appendChild(clInfo);
-
-    // Buttons
-    var clBtns = document.createElement('div');
-    clBtns.className = 'clear-buttons';
-
-    var clearCookiesBtn = document.createElement('button');
-    clearCookiesBtn.className = 'clear-btn';
-    clearCookiesBtn.id = 'clearCookiesBtn';
-    clearCookiesBtn.textContent = t('tools_clear_cookies');
-    clearCookiesBtn.addEventListener('click', handleClearCookies);
-
-    var clearCacheBtn = document.createElement('button');
-    clearCacheBtn.className = 'clear-btn';
-    clearCacheBtn.id = 'clearCacheBtn';
-    clearCacheBtn.textContent = t('tools_clear_cache');
-    clearCacheBtn.addEventListener('click', handleClearCache);
-
-    clBtns.appendChild(clearCookiesBtn);
-    clBtns.appendChild(clearCacheBtn);
-    clSection.appendChild(clBtns);
-
-    container.appendChild(clSection);
-
-    // Load cookie count
-    loadCookieCount();
+    // Reflect font inspector active state
+    if (fiBtn && fontInspectorActive) fiBtn.classList.add('active');
   }
 
   // --- Eye Dropper ---
@@ -1146,6 +1033,8 @@
       }
     }).then(function(results) {
       if (results && results[0] && results[0].result) {
+        var panel = document.getElementById('quickColorPanel');
+        if (panel) panel.classList.remove('hidden');
         renderColorResult(results[0].result);
         renderColorHistory();
       }
@@ -1257,26 +1146,27 @@
       type: fontInspectorActive ? 'font_inspector_on' : 'font_inspector_off'
     });
 
-    // Re-render tools tab to update button state
-    renderToolsTab();
+    // Update toolbar button state
+    var btn = document.getElementById('qtFontInspector');
+    if (btn) btn.classList.toggle('active', fontInspectorActive);
   }
 
   // --- Clear Cookies/Cache ---
   function loadCookieCount() {
+    var badge = document.getElementById('qtCookieCount');
     if (!currentDomain) {
-      var el = document.getElementById('cookieCount');
-      if (el) el.textContent = '0';
+      if (badge) badge.textContent = '0';
       return;
     }
     chrome.cookies.getAll({ domain: currentDomain }, function(cookies) {
-      var el = document.getElementById('cookieCount');
-      if (el) el.textContent = cookies ? cookies.length : 0;
+      var count = cookies ? cookies.length : 0;
+      if (badge) badge.textContent = count > 0 ? count : '';
     });
   }
 
   function handleClearCookies() {
     if (!currentDomain) return;
-    var btn = document.getElementById('clearCookiesBtn');
+    var btn = document.getElementById('qtClearCookies');
 
     chrome.cookies.getAll({ domain: currentDomain }, function(cookies) {
       if (!cookies) return;
@@ -1289,18 +1179,16 @@
       loadCookieCount();
       if (btn) {
         btn.classList.add('success');
-        btn.textContent = t('tools_cleared');
         setTimeout(function() {
           btn.classList.remove('success');
-          btn.textContent = t('tools_clear_cookies');
-        }, 1500);
+        }, 1200);
       }
     });
   }
 
   function handleClearCache() {
     if (!currentOrigin) return;
-    var btn = document.getElementById('clearCacheBtn');
+    var btn = document.getElementById('qtClearCache');
 
     chrome.browsingData.remove(
       { origins: [currentOrigin] },
@@ -1308,11 +1196,9 @@
       function() {
         if (btn) {
           btn.classList.add('success');
-          btn.textContent = t('tools_cleared');
           setTimeout(function() {
             btn.classList.remove('success');
-            btn.textContent = t('tools_clear_cache');
-          }, 1500);
+          }, 1200);
         }
       }
     );

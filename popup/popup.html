@@ -32,6 +32,27 @@
       </div>
     </header>
 
+    <!-- Quick Tools Bar -->
+    <div class="quick-tools" id="quickTools">
+      <button class="quick-tool-btn" id="qtEyeDropper" title="Eye Dropper">
+        <span class="quick-tool-icon" id="qtIconEyeDropper"></span>
+      </button>
+      <button class="quick-tool-btn" id="qtFontInspector" title="Font Inspector">
+        <span class="quick-tool-icon" id="qtIconFont"></span>
+      </button>
+      <button class="quick-tool-btn" id="qtClearCookies" title="Clear Cookies">
+        <span class="quick-tool-icon" id="qtIconCookies"></span>
+        <span class="quick-tool-badge" id="qtCookieCount"></span>
+      </button>
+      <button class="quick-tool-btn" id="qtClearCache" title="Clear Cache">
+        <span class="quick-tool-icon" id="qtIconCache"></span>
+      </button>
+    </div>
+    <!-- Color result floating panel -->
+    <div class="quick-color-panel hidden" id="quickColorPanel">
+      <div id="colorResultArea"></div>
+    </div>
+
     <!-- Tab bar -->
     <nav class="tab-bar" id="tabBar">
       <button class="tab-btn active" data-tab="pixels">
@@ -48,15 +69,11 @@
       </button>
       <button class="tab-btn" data-tab="stack">
         <span class="tab-icon" id="tabIconStack"></span>
-        <span data-i18n="tab_stack">Stack</span>
+        <span data-i18n="tab_stack">Tools</span>
       </button>
       <button class="tab-btn" data-tab="seo">
         <span class="tab-icon" id="tabIconSeo"></span>
         <span data-i18n="tab_seo">SEO</span>
-      </button>
-      <button class="tab-btn" data-tab="tools">
-        <span class="tab-icon" id="tabIconTools"></span>
-        <span data-i18n="tab_tools">Tools</span>
       </button>
     </nav>
 
@@ -161,14 +178,9 @@
       </div>
     </div>
 
-    <!-- Tab: Tools -->
-    <div class="tab-content" data-tab="tools">
-      <div class="tools-container" id="toolsContainer"></div>
-    </div>
-
     <!-- Footer -->
     <footer class="footer">
-      <span class="footer-text" data-i18n="footer_text">impulsion.com v2.1 — Universal Pixel Debugger</span>
+      <span class="footer-text" data-i18n="footer_text">impulsion.com v2.2 — Universal Pixel Debugger</span>
       <a class="footer-feature-link" href="mailto:contact@impulsion.com?subject=Feature%20Request%20%E2%80%94%20Impulsion" target="_blank" data-i18n="footer_request">Suggest a feature</a>
     </footer>
 

@@ -15,8 +15,7 @@
       tab_pixels: 'Pixels',
       tab_consent: 'Consent',
       tab_adlibs: 'Ad Libs',
-      tab_stack: 'Stack',
-      tab_tools: 'Tools',
+      tab_stack: 'Tools',
 
       // Pixels tab
       no_pixels: 'No pixels detected',
@@ -84,7 +83,7 @@
       tools_copy: 'Copied!',
 
       // Footer
-      footer_text: 'impulsion.com v2.1 \u2014 Universal Pixel Debugger',
+      footer_text: 'impulsion.com v2.2 \u2014 Universal Pixel Debugger',
       footer_request: 'Suggest a feature',
 
       // SEO tab
@@ -127,8 +126,7 @@
       tab_pixels: 'Pixels',
       tab_consent: 'Consent',
       tab_adlibs: 'Ad Libs',
-      tab_stack: 'Stack',
-      tab_tools: 'Outils',
+      tab_stack: 'Outils',
 
       no_pixels: 'Aucun pixel d\u00e9tect\u00e9',
       no_pixels_hint: 'Navigue vers une page avec des pixels de tracking',
@@ -190,7 +188,7 @@
       tools_color_history: 'Historique',
       tools_copy: 'Copi\u00e9 !',
 
-      footer_text: 'impulsion.com v2.1 \u2014 Debugger Universel de Pixels',
+      footer_text: 'impulsion.com v2.2 \u2014 Debugger Universel de Pixels',
       footer_request: 'Sugg\u00e9rer une fonctionnalit\u00e9',
 
       // SEO tab

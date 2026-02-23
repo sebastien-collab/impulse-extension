@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "impulsion.com",
   "description": "Universal pixel & tag debugger for media buyers. Detect GTM, GA4, Meta, TikTok, LinkedIn, Pinterest, Snapchat, X, Bing & more.",
-  "version": "2.1.0",
+  "version": "2.2.0",
 
   "icons": {
     "16": "icons/icon-16.png",
