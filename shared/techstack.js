@@ -66,6 +66,35 @@
           scriptSrc: [/\/static\/frontend\/Magento/, /mage\/cookies/],
           htmlAttr: [{ selector: '[data-mage-init]' }]
         }
+      },
+      {
+        name: 'Drupal', color: '#0678BE', icon: 'Dr',
+        detect: {
+          meta: [{ name: 'generator', pattern: /Drupal/i }],
+          scriptSrc: [/\/sites\/default\/files\/js/, /drupal\.js/],
+          globals: ['Drupal']
+        }
+      },
+      {
+        name: 'Joomla', color: '#5091CD', icon: 'Jm',
+        detect: {
+          meta: [{ name: 'generator', pattern: /Joomla/i }],
+          scriptSrc: [/\/media\/jui\/js/, /joomla/i],
+          globals: ['Joomla']
+        }
+      },
+      {
+        name: 'Ghost', color: '#15171A', icon: 'Gh',
+        detect: {
+          meta: [{ name: 'generator', pattern: /Ghost/i }],
+          scriptSrc: [/ghost\.io/, /ghost\/portal/]
+        }
+      },
+      {
+        name: 'Hugo', color: '#FF4088', icon: 'Hu',
+        detect: {
+          meta: [{ name: 'generator', pattern: /Hugo/i }]
+        }
       }
     ],
 
@@ -263,6 +292,148 @@
         detect: {
           scriptSrc: [/cdn\.cookielaw\.org/, /onetrust\.com/],
           globals: ['OneTrust']
+        }
+      }
+    ],
+
+    // ─── Analytics ────────────────────────────────────────────
+    analytics: [
+      {
+        name: 'Matomo', color: '#3152A0', icon: 'Mt',
+        detect: {
+          scriptSrc: [/matomo\.js/, /piwik\.js/],
+          globals: ['_paq', 'Matomo']
+        }
+      },
+      {
+        name: 'Adobe Analytics', color: '#EB1000', icon: 'AA',
+        detect: {
+          scriptSrc: [/omtrdc\.net/, /adoberesources\.net/],
+          globals: ['s_gi', 'AppMeasurement']
+        }
+      },
+      {
+        name: 'Mixpanel', color: '#7856FF', icon: 'Mp',
+        detect: {
+          scriptSrc: [/cdn\.mxpnl\.com/, /mixpanel/],
+          globals: ['mixpanel']
+        }
+      },
+      {
+        name: 'Amplitude', color: '#1E61F0', icon: 'Am',
+        detect: {
+          scriptSrc: [/cdn\.amplitude\.com/],
+          globals: ['amplitude']
+        }
+      },
+      {
+        name: 'Heap', color: '#FF6D2E', icon: 'Hp',
+        detect: {
+          scriptSrc: [/cdn\.heapanalytics\.com/],
+          globals: ['heap']
+        }
+      },
+      {
+        name: 'Plausible', color: '#5850EC', icon: 'Pl',
+        detect: {
+          scriptSrc: [/plausible\.io\/js/],
+          globals: ['plausible']
+        }
+      },
+      {
+        name: 'Fathom', color: '#9187FF', icon: 'Fa',
+        detect: {
+          scriptSrc: [/cdn\.usefathom\.com/, /usefathom\.com\/script/],
+          globals: ['fathom']
+        }
+      },
+      {
+        name: 'Clarity', color: '#0078D4', icon: 'Cl',
+        detect: {
+          scriptSrc: [/clarity\.ms/],
+          globals: ['clarity']
+        }
+      }
+    ],
+
+    // ─── Advertising / Ad Networks ────────────────────────────
+    advertising: [
+      {
+        name: 'Google AdSense', color: '#4285F4', icon: 'AS',
+        detect: {
+          scriptSrc: [/pagead2\.googlesyndication\.com/, /adsbygoogle/],
+          globals: ['adsbygoogle']
+        }
+      },
+      {
+        name: 'Criteo', color: '#F27921', icon: 'Ct',
+        detect: {
+          scriptSrc: [/static\.criteo\.net/, /criteo\.com/],
+          globals: ['criteo_q']
+        }
+      },
+      {
+        name: 'Taboola', color: '#0054FF', icon: 'Tb',
+        detect: {
+          scriptSrc: [/cdn\.taboola\.com/],
+          globals: ['_tfa', 'TRC']
+        }
+      },
+      {
+        name: 'Outbrain', color: '#EE5A24', icon: 'Ob',
+        detect: {
+          scriptSrc: [/outbrain\.com/, /widgets\.outbrain\.com/],
+          globals: ['OBR', 'obApi']
+        }
+      },
+      {
+        name: 'Amazon Ads', color: '#FF9900', icon: 'Az',
+        detect: {
+          scriptSrc: [/amazon-adsystem\.com/],
+          globals: ['amzn_assoc']
+        }
+      },
+      {
+        name: 'Mediavine', color: '#00B373', icon: 'Mv',
+        detect: {
+          scriptSrc: [/scripts\.mediavine\.com/]
+        }
+      },
+      {
+        name: 'AdThrive', color: '#56B4E9', icon: 'AT',
+        detect: {
+          scriptSrc: [/ads\.adthrive\.com/]
+        }
+      }
+    ],
+
+    // ─── Tag Managers ─────────────────────────────────────────
+    tag_manager: [
+      {
+        name: 'Tealium', color: '#00A4BD', icon: 'Te',
+        detect: {
+          scriptSrc: [/tags\.tiqcdn\.com/, /tealium/],
+          globals: ['utag', 'utag_data']
+        }
+      },
+      {
+        name: 'Adobe Launch', color: '#EB1000', icon: 'AL',
+        detect: {
+          scriptSrc: [/assets\.adobedtm\.com/],
+          globals: ['_satellite']
+        }
+      },
+      {
+        name: 'Segment', color: '#52BD94', icon: 'Sg',
+        detect: {
+          scriptSrc: [/cdn\.segment\.com/, /segment\.io/]
+        }
+      },
+      {
+        name: 'Ensighten', color: '#005BAA', icon: 'En',
+        detect: {
+          scriptSrc: [/nexus\.ensighten\.com/],
+          globals: ['Bootstrapper']
         }
       }
     ]

@@ -20,6 +20,8 @@ importScripts('../shared/techstack.js');
 
 // Map<tabId, { pixels: Map<platform, PixelData>, events: Array, consent: Object }>
 var tabStore = new Map();
+var tabUrls = new Map();
+var pendingRestores = new Map();
 
 function createEmptyConsentState() {
   return {
@@ -80,8 +82,24 @@ function addPixelDetection(tabId, platform, pixelId, source) {
   pixel.detectedVia.add(source);
   pixel.lastSeen = Date.now();
 
+  // Compute setup method (Manual / GTM / tag manager)
+  pixel.setupMethod = computeSetupMethod(tabData, platform);
+
   updateBadge(tabId);
   persistTabData(tabId);
+}
+
+function computeSetupMethod(tabData, platform) {
+  if (platform === 'gtm') return null;
+  var pixel = tabData.pixels.get(platform);
+  if (!pixel) return null;
+  var sources = Array.from(pixel.detectedVia);
+  var hasDomDirect = sources.some(function(s) {
+    return s === 'dom:script_src' || s === 'dom:inline';
+  });
+  if (hasDomDirect) return 'Manual';
+  if (tabData.pixels.has('gtm')) return 'GTM';
+  return null;
 }
 
 function addEvent(tabId, platform, eventData) {
@@ -94,9 +112,9 @@ function addEvent(tabId, platform, eventData) {
     timestamp: eventData.timestamp || Date.now()
   });
 
-  // Cap at 500 events per tab
-  if (tabData.events.length > 500) {
-    tabData.events = tabData.events.slice(-500);
+  // Cap at 1000 events per tab
+  if (tabData.events.length > 1000) {
+    tabData.events = tabData.events.slice(-1000);
   }
 
   // Mark pixel as detected if not already
@@ -374,7 +392,8 @@ function persistTabData(tabId) {
       ids: Array.from(pixel.ids),
       detectedVia: Array.from(pixel.detectedVia),
       firstSeen: pixel.firstSeen,
-      lastSeen: pixel.lastSeen
+      lastSeen: pixel.lastSeen,
+      setupMethod: pixel.setupMethod || null
     };
   });
 
@@ -405,13 +424,31 @@ function restoreTabData(tabId) {
         ids: new Set(p.ids),
         detectedVia: new Set(p.detectedVia),
         firstSeen: p.firstSeen,
-        lastSeen: p.lastSeen
+        lastSeen: p.lastSeen,
+        setupMethod: p.setupMethod || null
       });
     });
 
     tabStore.set(tabId, tabData);
     return tabData;
   }).catch(function() { return null; });
+}
+
+// Ensure tab data is in memory (restore from session storage if needed after SW wake)
+function ensureTabData(tabId) {
+  if (tabStore.has(tabId)) return Promise.resolve(tabStore.get(tabId));
+  if (pendingRestores.has(tabId)) return pendingRestores.get(tabId);
+
+  var promise = restoreTabData(tabId).then(function(restored) {
+    pendingRestores.delete(tabId);
+    return restored || getTabData(tabId);
+  }).catch(function() {
+    pendingRestores.delete(tabId);
+    return getTabData(tabId);
+  });
+
+  pendingRestores.set(tabId, promise);
+  return promise;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -440,43 +477,53 @@ function updateBadge(tabId) {
 // Build URL patterns from pixel config
 var urlPatterns = self.IMPULSION_URL_FILTERS || ['<all_urls>'];
 
+function processNetworkRequest(details) {
+  var url = details.url;
+  var pixelKeys = Object.keys(self.IMPULSION_PIXELS);
+
+  for (var i = 0; i < pixelKeys.length; i++) {
+    var platform = pixelKeys[i];
+    var config = self.IMPULSION_PIXELS[platform];
+
+    for (var j = 0; j < config.networkPatterns.length; j++) {
+      if (config.networkPatterns[j].test(url)) {
+        // Extract pixel ID from URL
+        var extractedId = null;
+        for (var k = 0; k < config.idPatterns.length; k++) {
+          var idMatch = url.match(config.idPatterns[k]);
+          if (idMatch) {
+            extractedId = idMatch[0];
+            break;
+          }
+        }
+
+        addPixelDetection(details.tabId, platform, extractedId, 'network');
+        addEvent(details.tabId, platform, {
+          fn: 'network_request',
+          args: {
+            url: url,
+            method: details.method || 'GET',
+            type: details.type
+          }
+        });
+
+        return; // matched — stop checking other platforms for this request
+      }
+    }
+  }
+}
+
 chrome.webRequest.onBeforeRequest.addListener(
   function(details) {
     if (details.tabId < 0) return; // non-tab requests (e.g., service worker)
 
-    var url = details.url;
-    var pixelKeys = Object.keys(self.IMPULSION_PIXELS);
-
-    for (var i = 0; i < pixelKeys.length; i++) {
-      var platform = pixelKeys[i];
-      var config = self.IMPULSION_PIXELS[platform];
-
-      for (var j = 0; j < config.networkPatterns.length; j++) {
-        if (config.networkPatterns[j].test(url)) {
-          // Extract pixel ID from URL
-          var extractedId = null;
-          for (var k = 0; k < config.idPatterns.length; k++) {
-            var idMatch = url.match(config.idPatterns[k]);
-            if (idMatch) {
-              extractedId = idMatch[0];
-              break;
-            }
-          }
-
-          addPixelDetection(details.tabId, platform, extractedId, 'network');
-          addEvent(details.tabId, platform, {
-            fn: 'network_request',
-            args: {
-              url: url,
-              method: details.method || 'GET',
-              type: details.type
-            }
-          });
-
-          return; // matched — stop checking other platforms for this request
-        }
-      }
+    if (!tabStore.has(details.tabId)) {
+      ensureTabData(details.tabId).then(function() {
+        processNetworkRequest(details);
+      });
+      return;
     }
+    processNetworkRequest(details);
   },
   { urls: urlPatterns }
 );
@@ -485,20 +532,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 // MESSAGE HANDLING
 // ═══════════════════════════════════════════════════════════════
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  // Messages from content scripts have sender.tab
-  var tabId = sender.tab ? sender.tab.id : null;
-
-  // Message from popup (no tab)
-  if (!tabId) {
-    if (message.type === 'get_tab_data') {
-      handleGetTabData(message.tabId, sendResponse);
-      return true; // async response
-    }
-    return;
-  }
-
-  // Messages from content script
+function processMessage(tabId, message) {
   switch (message.type) {
 
     case 'global_found':
@@ -619,6 +653,29 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
       }
       break;
   }
+}
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  // Messages from content scripts have sender.tab
+  var tabId = sender.tab ? sender.tab.id : null;
+
+  // Message from popup (no tab)
+  if (!tabId) {
+    if (message.type === 'get_tab_data') {
+      handleGetTabData(message.tabId, sendResponse);
+      return true; // async response
+    }
+    return;
+  }
+
+  // Ensure tab data is restored from session storage (service worker may have woken up)
+  if (!tabStore.has(tabId)) {
+    ensureTabData(tabId).then(function() {
+      processMessage(tabId, message);
+    });
+  } else {
+    processMessage(tabId, message);
+  }
 });
 
 function extractIdFromArgs(tabId, platform, args) {
@@ -667,12 +724,13 @@ function serializeTabData(tabData) {
       ids: Array.from(pixel.ids),
       detectedVia: Array.from(pixel.detectedVia),
       firstSeen: pixel.firstSeen,
-      lastSeen: pixel.lastSeen
+      lastSeen: pixel.lastSeen,
+      setupMethod: pixel.setupMethod || null
     });
   });
 
-  // Return last 200 events
-  var events = tabData.events.slice(-200);
+  // Return last 500 events
+  var events = tabData.events.slice(-500);
 
   return { pixels: pixels, events: events, consent: tabData.consent, techstack: tabData.techstack || [], seo: tabData.seo || null };
 }
@@ -683,15 +741,39 @@ function serializeTabData(tabData) {
 
 chrome.tabs.onRemoved.addListener(function(tabId) {
   tabStore.delete(tabId);
+  tabUrls.delete(tabId);
+  pendingRestores.delete(tabId);
   chrome.storage.session.remove('tab_' + tabId).catch(function() {});
 });
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
   if (changeInfo.status === 'loading') {
-    // Page navigation — clear old data
-    tabStore.delete(tabId);
-    chrome.storage.session.remove('tab_' + tabId).catch(function() {});
-    updateBadge(tabId);
+    var previousUrl = tabUrls.get(tabId);
+    var newUrl = changeInfo.url || (tab ? tab.url : null);
+    var shouldClear = true;
+
+    if (previousUrl && newUrl) {
+      try {
+        var prev = new URL(previousUrl);
+        var next = new URL(newUrl);
+        // Same origin + same pathname = SPA navigation (hash/query change) — keep data
+        if (prev.origin === next.origin && prev.pathname === next.pathname) {
+          shouldClear = false;
+        }
+      } catch (e) {}
+    }
+
+    if (newUrl) tabUrls.set(tabId, newUrl);
+
+    if (shouldClear) {
+      tabStore.delete(tabId);
+      chrome.storage.session.remove('tab_' + tabId).catch(function() {});
+      updateBadge(tabId);
+    }
+  }
+
+  if (changeInfo.url) {
+    tabUrls.set(tabId, changeInfo.url);
   }
 });
 

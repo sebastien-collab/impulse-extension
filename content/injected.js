@@ -417,7 +417,29 @@
       { global: 'drift', name: 'Drift', category: 'tool', color: '#0176FF', icon: 'Dr' },
       { global: 'google', sub: 'maps', name: 'Google Maps', category: 'tool', color: '#4285F4', icon: 'Gm' },
       { global: 'Cookiebot', alt: 'CookieConsent', name: 'Cookiebot', category: 'tool', color: '#1769FF', icon: 'Cb' },
-      { global: 'OneTrust', name: 'OneTrust', category: 'tool', color: '#1F6B2B', icon: 'Ot' }
+      { global: 'OneTrust', name: 'OneTrust', category: 'tool', color: '#1F6B2B', icon: 'Ot' },
+      // CMS (additional)
+      { global: 'Drupal', name: 'Drupal', category: 'cms', color: '#0678BE', icon: 'Dr' },
+      { global: 'Joomla', name: 'Joomla', category: 'cms', color: '#5091CD', icon: 'Jm' },
+      // Analytics
+      { global: '_paq', alt: 'Matomo', name: 'Matomo', category: 'analytics', color: '#3152A0', icon: 'Mt' },
+      { global: 's_gi', alt: 'AppMeasurement', name: 'Adobe Analytics', category: 'analytics', color: '#EB1000', icon: 'AA' },
+      { global: 'mixpanel', name: 'Mixpanel', category: 'analytics', color: '#7856FF', icon: 'Mp' },
+      { global: 'amplitude', name: 'Amplitude', category: 'analytics', color: '#1E61F0', icon: 'Am' },
+      { global: 'heap', name: 'Heap', category: 'analytics', color: '#FF6D2E', icon: 'Hp' },
+      { global: 'plausible', name: 'Plausible', category: 'analytics', color: '#5850EC', icon: 'Pl' },
+      { global: 'fathom', name: 'Fathom', category: 'analytics', color: '#9187FF', icon: 'Fa' },
+      { global: 'clarity', name: 'Clarity', category: 'analytics', color: '#0078D4', icon: 'Cl' },
+      // Advertising
+      { global: 'adsbygoogle', name: 'Google AdSense', category: 'advertising', color: '#4285F4', icon: 'AS' },
+      { global: 'criteo_q', name: 'Criteo', category: 'advertising', color: '#F27921', icon: 'Ct' },
+      { global: '_tfa', alt: 'TRC', name: 'Taboola', category: 'advertising', color: '#0054FF', icon: 'Tb' },
+      { global: 'OBR', alt: 'obApi', name: 'Outbrain', category: 'advertising', color: '#EE5A24', icon: 'Ob' },
+      { global: 'amzn_assoc', name: 'Amazon Ads', category: 'advertising', color: '#FF9900', icon: 'Az' },
+      // Tag Managers
+      { global: 'utag', name: 'Tealium', category: 'tag_manager', color: '#00A4BD', icon: 'Te' },
+      { global: '_satellite', name: 'Adobe Launch', category: 'tag_manager', color: '#EB1000', icon: 'AL' },
+      { global: 'Bootstrapper', name: 'Ensighten', category: 'tag_manager', color: '#005BAA', icon: 'En' }
     ];
 
     for (var i = 0; i < checks.length; i++) {

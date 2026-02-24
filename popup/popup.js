@@ -15,6 +15,7 @@
   var currentTheme = 'light';
   var cachedData = null;
   var fontInspectorActive = false;
+  var eyeDropperActive = false;
 
   // ─── Init ──────────────────────────────────────────────────
   async function init() {
@@ -291,9 +292,20 @@
     var info = document.createElement('div');
     info.className = 'pixel-info';
 
+    var nameRow = document.createElement('div');
+    nameRow.className = 'pixel-name-row';
+
     var name = document.createElement('div');
     name.className = 'pixel-name';
     name.textContent = pixel.name;
+    nameRow.appendChild(name);
+
+    if (pixel.setupMethod) {
+      var methodBadge = document.createElement('span');
+      methodBadge.className = 'setup-method-badge';
+      methodBadge.textContent = pixel.setupMethod === 'GTM' ? t('setup_gtm') : t('setup_manual');
+      nameRow.appendChild(methodBadge);
+    }
 
     var idText = document.createElement('div');
     idText.className = 'pixel-id';
@@ -316,7 +328,7 @@
       idText.style.fontStyle = 'italic';
     }
 
-    info.appendChild(name);
+    info.appendChild(nameRow);
     info.appendChild(idText);
 
     var meta = document.createElement('div');
@@ -351,6 +363,19 @@
         badge.textContent = formatDetectionSource(pixel.detectedVia[d]);
         badges.appendChild(badge);
       }
+    }
+
+    // Event Manager troubleshoot link
+    var debugUrl = getEventManagerUrl(pixel.platform, pixel.ids);
+    if (debugUrl) {
+      var debugLink = document.createElement('a');
+      debugLink.className = 'pixel-debug-link';
+      debugLink.href = debugUrl;
+      debugLink.target = '_blank';
+      debugLink.rel = 'noopener';
+      debugLink.textContent = t('debug_link') + ' \u2192';
+      debugLink.addEventListener('click', function(e) { e.stopPropagation(); });
+      badges.appendChild(debugLink);
     }
 
     var eventsContainer = document.createElement('div');
@@ -711,11 +736,14 @@
   // STACK TAB
   // ═══════════════════════════════════════════════════════════
 
-  var STACK_CATEGORY_ORDER = ['cms', 'js_framework', 'css_framework', 'cdn', 'tool'];
+  var STACK_CATEGORY_ORDER = ['cms', 'js_framework', 'css_framework', 'analytics', 'advertising', 'tag_manager', 'cdn', 'tool'];
   var STACK_CATEGORY_KEYS = {
     cms: 'stack_category_cms',
     js_framework: 'stack_category_js',
     css_framework: 'stack_category_css',
+    analytics: 'stack_category_analytics',
+    advertising: 'stack_category_advertising',
+    tag_manager: 'stack_category_tag_manager',
     cdn: 'stack_category_cdn',
     tool: 'stack_category_tools'
   };
@@ -1002,11 +1030,13 @@
     var fiBtn = document.getElementById('qtFontInspector');
     var ckBtn = document.getElementById('qtClearCookies');
     var caBtn = document.getElementById('qtClearCache');
+    var ssBtn = document.getElementById('qtScreenshot');
 
     if (edBtn) edBtn.addEventListener('click', handleEyeDropper);
     if (fiBtn) fiBtn.addEventListener('click', handleFontInspector);
     if (ckBtn) ckBtn.addEventListener('click', handleClearCookies);
     if (caBtn) caBtn.addEventListener('click', handleClearCache);
+    if (ssBtn) ssBtn.addEventListener('click', handleScreenshot);
 
     // Reflect font inspector active state
     if (fiBtn && fontInspectorActive) fiBtn.classList.add('active');
@@ -1015,11 +1045,31 @@
   // --- Eye Dropper ---
   function handleEyeDropper() {
     if (!currentTabId) return;
+    var btn = document.getElementById('qtEyeDropper');
+
+    // If active, cancel the eye dropper
+    if (eyeDropperActive) {
+      eyeDropperActive = false;
+      if (btn) btn.classList.remove('active');
+      chrome.scripting.executeScript({
+        target: { tabId: currentTabId },
+        func: function() {
+          if (window.__impulsionEyeDropperAbort) {
+            try { window.__impulsionEyeDropperAbort.abort(); } catch (e) {}
+            window.__impulsionEyeDropperAbort = null;
+          }
+        }
+      }).catch(function() {});
+      return;
+    }
+
+    // Activate eye dropper
+    eyeDropperActive = true;
+    if (btn) btn.classList.add('active');
 
     chrome.scripting.executeScript({
       target: { tabId: currentTabId },
       func: function() {
-        // Abort any previous EyeDropper to prevent freezing
         if (window.__impulsionEyeDropperAbort) {
           try { window.__impulsionEyeDropperAbort.abort(); } catch (e) {}
           window.__impulsionEyeDropperAbort = null;
@@ -1031,7 +1081,6 @@
           window.__impulsionEyeDropperAbort = null;
           chrome.storage.local.get('colorHistory', function(data) {
             var history = data.colorHistory || [];
-            // Avoid duplicates at the top
             if (history[0] === result.sRGBHex) history.shift();
             history.unshift(result.sRGBHex);
             if (history.length > 10) history = history.slice(0, 10);
@@ -1044,6 +1093,8 @@
         });
       }
     }).then(function(results) {
+      eyeDropperActive = false;
+      if (btn) btn.classList.remove('active');
       if (results && results[0] && results[0].result) {
         var panel = document.getElementById('quickColorPanel');
         if (panel) panel.classList.remove('hidden');
@@ -1052,7 +1103,67 @@
         loadQuickColorHistory();
       }
     }).catch(function() {
-      // User cancelled or API not available
+      eyeDropperActive = false;
+      if (btn) btn.classList.remove('active');
+    });
+  }
+
+  // --- Screenshot ---
+  function handleScreenshot() {
+    var btn = document.getElementById('qtScreenshot');
+    if (btn) btn.classList.add('active');
+
+    chrome.tabs.captureVisibleTab(null, { format: 'png' }, function(dataUrl) {
+      if (btn) btn.classList.remove('active');
+
+      if (chrome.runtime.lastError || !dataUrl) {
+        if (btn) {
+          btn.style.color = 'var(--error)';
+          setTimeout(function() { btn.style.color = ''; }, 1200);
+        }
+        return;
+      }
+
+      var panel = document.getElementById('quickScreenshotPanel');
+      var img = document.getElementById('screenshotImg');
+      if (panel) panel.classList.remove('hidden');
+      if (img) img.src = dataUrl;
+
+      var dlBtn = document.getElementById('screenshotDownload');
+      if (dlBtn) {
+        dlBtn.onclick = function() {
+          var a = document.createElement('a');
+          a.href = dataUrl;
+          var domain = currentDomain || 'page';
+          var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+          a.download = 'impulsion-' + domain + '-' + timestamp + '.png';
+          a.click();
+        };
+      }
+
+      var cpBtn = document.getElementById('screenshotCopy');
+      if (cpBtn) {
+        cpBtn.onclick = function() {
+          fetch(dataUrl)
+            .then(function(res) { return res.blob(); })
+            .then(function(blob) {
+              return navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+              ]);
+            })
+            .then(function() {
+              showToast(cpBtn, t('tools_copy'));
+            })
+            .catch(function() {});
+        };
+      }
+
+      var closeBtn = document.getElementById('screenshotClose');
+      if (closeBtn) {
+        closeBtn.onclick = function() {
+          panel.classList.add('hidden');
+        };
+      }
     });
   }
 
@@ -1153,8 +1264,9 @@
     chrome.storage.local.get('colorHistory', function(data) {
       var history = data.colorHistory || [];
       var container = document.getElementById('quickColorHistory');
-      if (!container) return;
-      container.innerHTML = '';
+      var swatchContainer = document.getElementById('miniColorSwatches');
+      if (!container || !swatchContainer) return;
+      swatchContainer.innerHTML = '';
 
       if (history.length === 0) {
         container.classList.add('hidden');
@@ -1175,10 +1287,93 @@
           var panel = document.getElementById('quickColorPanel');
           if (panel) panel.classList.remove('hidden');
           renderColorResult(hex);
+          renderColorHistory();
           showToast(this, t('tools_copy'));
         });
-        container.appendChild(swatch);
+        swatchContainer.appendChild(swatch);
       }
+
+      // Setup the history toggle button
+      var toggleBtn = document.getElementById('colorHistoryToggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = t('tools_color_history');
+        toggleBtn.onclick = function() {
+          var panel = document.getElementById('quickColorPanel');
+          if (panel) {
+            var isVisible = !panel.classList.contains('hidden');
+            if (isVisible) {
+              panel.classList.add('hidden');
+            } else {
+              panel.classList.remove('hidden');
+              renderFullColorHistory();
+            }
+          }
+        };
+      }
+    });
+  }
+
+  function renderFullColorHistory() {
+    chrome.storage.local.get('colorHistory', function(data) {
+      var history = data.colorHistory || [];
+      var area = document.getElementById('colorResultArea');
+      if (!area) return;
+      area.innerHTML = '';
+
+      if (history.length === 0) {
+        var emptyEl = document.createElement('div');
+        emptyEl.style.cssText = 'text-align:center;padding:12px;color:var(--text-dim);font-size:11px';
+        emptyEl.textContent = t('tools_color_history') + ' — ' + t('tools_color_clear');
+        area.appendChild(emptyEl);
+        return;
+      }
+
+      var titleEl = document.createElement('div');
+      titleEl.className = 'color-history-title';
+      titleEl.textContent = t('tools_color_history') + ' (' + history.length + ')';
+      area.appendChild(titleEl);
+
+      var grid = document.createElement('div');
+      grid.className = 'color-history-full';
+
+      for (var i = 0; i < history.length; i++) {
+        var entry = document.createElement('div');
+        entry.className = 'color-history-entry';
+        entry.setAttribute('data-hex', history[i]);
+        entry.addEventListener('click', function() {
+          var hex = this.getAttribute('data-hex');
+          navigator.clipboard.writeText(hex);
+          renderColorResult(hex);
+          renderColorHistory();
+          showToast(this, t('tools_copy'));
+        });
+
+        var swatch = document.createElement('div');
+        swatch.className = 'color-history-entry-swatch';
+        swatch.style.backgroundColor = history[i];
+
+        var hexLabel = document.createElement('span');
+        hexLabel.className = 'color-history-entry-hex';
+        hexLabel.textContent = history[i];
+
+        entry.appendChild(swatch);
+        entry.appendChild(hexLabel);
+        grid.appendChild(entry);
+      }
+
+      area.appendChild(grid);
+
+      var clearBtn = document.createElement('button');
+      clearBtn.className = 'color-history-clear-btn';
+      clearBtn.textContent = t('tools_color_clear');
+      clearBtn.addEventListener('click', function() {
+        chrome.storage.local.remove(['colorHistory', 'lastColor'], function() {
+          loadQuickColorHistory();
+          var panel = document.getElementById('quickColorPanel');
+          if (panel) panel.classList.add('hidden');
+        });
+      });
+      area.appendChild(clearBtn);
     });
   }
 
@@ -1257,36 +1452,125 @@
 
   function extractEventName(evt) {
     var args = evt.args;
-    if (!args) return evt.fn || 'Unknown';
+    var fn = evt.fn || '';
+    var platform = evt.platform || '';
+    if (!args) return fn || 'Unknown';
 
-    if (evt.fn === 'network_request') {
-      if (args && args.url) {
-        try {
-          var url = new URL(args.url);
-          var path = url.pathname.split('/').pop();
-          return path || url.hostname;
-        } catch (e) {
-          return 'request';
-        }
-      }
-      return 'network';
+    // Network requests — parse URL params for event name
+    if (fn === 'network_request') {
+      return extractNetworkEventName(args, platform);
     }
 
-    if (Array.isArray(args)) {
-      if (args.length >= 2 && typeof args[0] === 'string' && typeof args[1] === 'string') {
+    // Meta Pixel (fbq)
+    if (fn === 'fbq' && Array.isArray(args)) {
+      if (args.length >= 2 && typeof args[1] === 'string') {
+        if (args[0] === 'track' || args[0] === 'trackCustom') return args[1];
         return args[0] + ': ' + args[1];
       }
-      if (args.length >= 1 && typeof args[0] === 'string') {
-        return args[0];
+      if (args.length >= 1) return String(args[0]);
+    }
+
+    // GA4 / Google Ads (gtag)
+    if (fn === 'gtag' && Array.isArray(args)) {
+      if (args.length >= 2) {
+        if (args[0] === 'event' && typeof args[1] === 'string') return args[1];
+        if (args[0] === 'config') return 'config';
+        if (args[0] === 'consent') return 'consent: ' + (args[1] || '');
+        if (args[0] === 'set') return 'set';
+        return args[0] + (typeof args[1] === 'string' ? ': ' + args[1] : '');
       }
+    }
+
+    // TikTok (ttq.*)
+    if (fn.indexOf('ttq.') === 0 && Array.isArray(args)) {
+      var ttqMethod = fn.replace('ttq.', '');
+      if (ttqMethod === 'track' && args.length >= 1) return String(args[0]);
+      if (ttqMethod === 'load') return 'load';
+      return ttqMethod;
+    }
+
+    // GTM (dataLayer.push)
+    if (fn.indexOf('dataLayer.push') !== -1 && Array.isArray(args)) {
       if (args.length >= 1 && typeof args[0] === 'object' && args[0] !== null) {
         if (args[0].event) return args[0].event;
+        if (args[0]['0'] === 'consent') return 'consent: ' + (args[0]['1'] || '');
+        if (args[0]['0'] === 'event' && args[0]['1']) return String(args[0]['1']);
         var keys = Object.keys(args[0]);
         if (keys.length > 0) return keys[0];
       }
     }
 
-    return evt.fn || 'event';
+    // Pinterest (pintrk)
+    if (fn === 'pintrk' && Array.isArray(args)) {
+      if (args[0] === 'track' && args.length >= 2) return String(args[1]);
+      if (args.length >= 1) return String(args[0]);
+    }
+
+    // Snapchat (snaptr)
+    if (fn === 'snaptr' && Array.isArray(args)) {
+      if (args[0] === 'track' && args.length >= 2) return String(args[1]);
+      if (args.length >= 1) return String(args[0]);
+    }
+
+    // Twitter/X (twq)
+    if (fn === 'twq' && Array.isArray(args)) {
+      if (args[0] === 'track' && args.length >= 2) return String(args[1]);
+      if (args.length >= 1) return String(args[0]);
+    }
+
+    // Bing UET (uetq.push)
+    if (fn.indexOf('uetq.push') !== -1 && Array.isArray(args)) {
+      if (args.length >= 1 && typeof args[0] === 'object' && args[0] !== null) {
+        if (args[0].ea) return args[0].ea;
+        if (args[0].ec) return args[0].ec;
+        if (args[0].event_name) return args[0].event_name;
+      }
+    }
+
+    // Fallback
+    if (Array.isArray(args)) {
+      if (args.length >= 2 && typeof args[0] === 'string' && typeof args[1] === 'string') {
+        return args[0] + ': ' + args[1];
+      }
+      if (args.length >= 1 && typeof args[0] === 'string') return args[0];
+      if (args.length >= 1 && typeof args[0] === 'object' && args[0] !== null) {
+        if (args[0].event) return args[0].event;
+      }
+    }
+
+    return fn || 'event';
+  }
+
+  function extractNetworkEventName(args, platform) {
+    if (!args || !args.url) return 'network';
+    try {
+      var url = new URL(args.url);
+      var params = url.searchParams;
+
+      // Meta Pixel: ev= parameter
+      if (platform === 'meta') {
+        var ev = params.get('ev');
+        if (ev) return ev;
+      }
+
+      // GA4: en= parameter (event name in collect endpoint)
+      if (platform === 'ga4') {
+        var en = params.get('en');
+        if (en) return en;
+      }
+
+      // TikTok: event parameter
+      if (platform === 'tiktok') {
+        var ttEvt = params.get('event');
+        if (ttEvt) return ttEvt;
+      }
+
+      // Fallback: last path segment
+      var path = url.pathname.split('/').pop();
+      return path || url.hostname;
+    } catch (e) {
+      return 'request';
+    }
   }
 
   function formatTime(ts) {
@@ -1296,6 +1580,19 @@
     var m = String(d.getMinutes()).padStart(2, '0');
     var s = String(d.getSeconds()).padStart(2, '0');
     return h + ':' + m + ':' + s;
+  }
+
+  function getEventManagerUrl(platform, ids) {
+    var config = window.IMPULSION_PIXELS && window.IMPULSION_PIXELS[platform];
+    if (!config || !config.eventManagerUrl) return null;
+    var url = config.eventManagerUrl;
+    if (ids && ids.length > 0) {
+      url = url.replace('{ID}', encodeURIComponent(ids[0]));
+    } else {
+      // Remove {ID} placeholder if no ID available
+      url = url.replace(/\/\{ID\}[^?]*/g, '').replace('{ID}', '');
+    }
+    return url;
   }
 
   function formatDetectionSource(source) {

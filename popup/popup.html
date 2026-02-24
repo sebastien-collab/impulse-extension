@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>impulsion.com</title>
+  <title>Media Buyer Helper</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
             <polygon points="0 266.84 .02 375.01 93.68 429.09 93.68 320.93 0 266.84"/>
           </svg>
         </span>
-        <h1 class="title">impulsion.com</h1>
+        <h1 class="title">Media Buyer Helper</h1>
       </div>
       <div class="header-right">
         <div class="lang-toggle" id="langToggle">
@@ -51,12 +51,30 @@
         <span class="quick-tool-emoji">🗑️</span>
         <span class="quick-tool-label" data-i18n="qt_cache">Cache</span>
       </button>
+      <button class="quick-tool-btn" id="qtScreenshot">
+        <span class="quick-tool-emoji">📸</span>
+        <span class="quick-tool-label" data-i18n="qt_screenshot">Screen</span>
+      </button>
     </div>
     <!-- Mini color history -->
-    <div class="quick-color-history hidden" id="quickColorHistory"></div>
+    <div class="quick-color-history hidden" id="quickColorHistory">
+      <div class="mini-color-swatches" id="miniColorSwatches"></div>
+      <button class="color-history-toggle-btn" id="colorHistoryToggle" data-i18n="tools_color_history">History</button>
+    </div>
     <!-- Color result floating panel -->
     <div class="quick-color-panel hidden" id="quickColorPanel">
       <div id="colorResultArea"></div>
+    </div>
+    <!-- Screenshot result floating panel -->
+    <div class="quick-screenshot-panel hidden" id="quickScreenshotPanel">
+      <div class="screenshot-preview">
+        <img id="screenshotImg" alt="Screenshot" />
+        <div class="screenshot-actions">
+          <button class="screenshot-action-btn" id="screenshotDownload" data-i18n="screenshot_download">Download</button>
+          <button class="screenshot-action-btn" id="screenshotCopy" data-i18n="screenshot_copy">Copy</button>
+          <button class="screenshot-action-btn screenshot-close" id="screenshotClose">&times;</button>
+        </div>
+      </div>
     </div>
 
     <!-- Tab bar -->
@@ -186,13 +204,14 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <span class="footer-text" data-i18n="footer_text">impulsion.com v2.2 — Universal Pixel Debugger</span>
-      <a class="footer-feature-link" href="mailto:contact@impulsion.com?subject=Feature%20Request%20%E2%80%94%20Impulsion" target="_blank" data-i18n="footer_request">Suggest a feature</a>
+      <span class="footer-text" data-i18n="footer_text">Media Buyer Helper v2.3 — Universal Pixel Debugger</span>
+      <a class="footer-feature-link" href="mailto:contact@impulsion.com?subject=Feature%20Request%20%E2%80%94%20Media%20Buyer%20Helper" target="_blank" data-i18n="footer_request">Suggest a feature</a>
     </footer>
 
   </div>
   <script src="../shared/i18n.js"></script>
   <script src="../shared/icons.js"></script>
+  <script src="../shared/pixels.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

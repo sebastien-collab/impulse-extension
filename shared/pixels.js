@@ -28,7 +28,8 @@
       idPatterns: [
         /GTM-[A-Z0-9]{4,8}/
       ],
-      domains: ['www.googletagmanager.com']
+      domains: ['www.googletagmanager.com'],
+      eventManagerUrl: 'https://tagmanager.google.com/'
     },
 
     // ─── Google Analytics 4 ───────────────────────────────────
@@ -53,7 +54,8 @@
       idPatterns: [
         /G-[A-Z0-9]{6,12}/
       ],
-      domains: ['www.google-analytics.com', 'analytics.google.com']
+      domains: ['www.google-analytics.com', 'analytics.google.com'],
+      eventManagerUrl: 'https://analytics.google.com/analytics/web/#/debugview'
     },
 
     // ─── Google Ads ───────────────────────────────────────────
@@ -76,7 +78,8 @@
       idPatterns: [
         /AW-\d{7,12}(?:\/[A-Za-z0-9_-]+)?/
       ],
-      domains: ['googleads.g.doubleclick.net', 'www.googleadservices.com']
+      domains: ['googleads.g.doubleclick.net', 'www.googleadservices.com'],
+      eventManagerUrl: 'https://ads.google.com/aw/conversions'
     },
 
     // ─── Meta / Facebook Pixel ────────────────────────────────
@@ -100,7 +103,8 @@
       idPatterns: [
         /\b\d{15,16}\b/
       ],
-      domains: ['connect.facebook.net', 'www.facebook.com']
+      domains: ['connect.facebook.net', 'www.facebook.com'],
+      eventManagerUrl: 'https://business.facebook.com/events_manager2/list/dataset/{ID}/test_events'
     },
 
     // ─── TikTok Pixel ────────────────────────────────────────
@@ -126,7 +130,8 @@
       idPatterns: [
         /[A-Z0-9]{20}/
       ],
-      domains: ['analytics.tiktok.com']
+      domains: ['analytics.tiktok.com'],
+      eventManagerUrl: 'https://ads.tiktok.com/i18n/events_manager/'
     },
 
     // ─── LinkedIn Insight Tag ─────────────────────────────────
@@ -149,7 +154,8 @@
       idPatterns: [
         /\b\d{5,10}\b/
       ],
-      domains: ['px.ads.linkedin.com', 'snap.licdn.com', 'ads.linkedin.com']
+      domains: ['px.ads.linkedin.com', 'snap.licdn.com', 'ads.linkedin.com'],
+      eventManagerUrl: 'https://www.linkedin.com/campaignmanager/accounts'
     },
 
     // ─── Pinterest Tag ────────────────────────────────────────
@@ -173,7 +179,8 @@
       idPatterns: [
         /\b\d{13}\b/
       ],
-      domains: ['ct.pinterest.com', 's.pinimg.com']
+      domains: ['ct.pinterest.com', 's.pinimg.com'],
+      eventManagerUrl: 'https://ads.pinterest.com/'
     },
 
     // ─── Snapchat Pixel ──────────────────────────────────────
@@ -197,7 +204,8 @@
       idPatterns: [
         /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/
       ],
-      domains: ['tr.snapchat.com', 'sc-static.net']
+      domains: ['tr.snapchat.com', 'sc-static.net'],
+      eventManagerUrl: 'https://ads.snapchat.com/'
     },
 
     // ─── Twitter / X Pixel ───────────────────────────────────
@@ -222,7 +230,8 @@
       idPatterns: [
         /[a-z0-9]{5,}/
       ],
-      domains: ['static.ads-twitter.com', 'analytics.twitter.com']
+      domains: ['static.ads-twitter.com', 'analytics.twitter.com'],
+      eventManagerUrl: 'https://ads.x.com/'
     },
 
     // ─── Microsoft / Bing UET ────────────────────────────────
@@ -245,7 +254,8 @@
       idPatterns: [
         /\b\d{7,9}\b/
       ],
-      domains: ['bat.bing.com']
+      domains: ['bat.bing.com'],
+      eventManagerUrl: 'https://ui.ads.microsoft.com/'
     }
   };
 

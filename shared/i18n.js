@@ -8,7 +8,7 @@
   root.IMPULSION_I18N = {
     en: {
       // Header
-      app_name: 'impulsion.com',
+      app_name: 'Media Buyer Helper',
       pixels_label: 'pixels',
 
       // Tabs
@@ -60,6 +60,8 @@
       stack_category_js: 'JavaScript',
       stack_category_css: 'CSS Frameworks',
       stack_category_analytics: 'Analytics',
+      stack_category_advertising: 'Advertising',
+      stack_category_tag_manager: 'Tag Managers',
       stack_category_cdn: 'CDN / Infrastructure',
       stack_category_tools: 'Tools & Services',
 
@@ -68,6 +70,12 @@
       qt_font: 'Fonts',
       qt_cookies: 'Cookies',
       qt_cache: 'Cache',
+      qt_screenshot: 'Screen',
+
+      // Pixels
+      setup_manual: 'Manual',
+      setup_gtm: 'via GTM',
+      debug_link: 'Event Manager',
 
       // Tools
       tools_eyedropper: 'Eye Dropper',
@@ -86,10 +94,13 @@
       tools_color_rgb: 'RGB',
       tools_color_hsl: 'HSL',
       tools_color_history: 'History',
+      tools_color_clear: 'Clear history',
       tools_copy: 'Copied!',
+      screenshot_download: 'Download',
+      screenshot_copy: 'Copy',
 
       // Footer
-      footer_text: 'impulsion.com v2.2 \u2014 Universal Pixel Debugger',
+      footer_text: 'Media Buyer Helper v2.3 \u2014 Universal Pixel Debugger',
       footer_request: 'Suggest a feature',
 
       // SEO tab
@@ -126,7 +137,7 @@
     },
 
     fr: {
-      app_name: 'impulsion.com',
+      app_name: 'Media Buyer Helper',
       pixels_label: 'pixels',
 
       tab_pixels: 'Pixels',
@@ -173,6 +184,8 @@
       stack_category_js: 'JavaScript',
       stack_category_css: 'Frameworks CSS',
       stack_category_analytics: 'Analytics',
+      stack_category_advertising: 'Publicit\u00e9',
+      stack_category_tag_manager: 'Gestionnaires de tags',
       stack_category_cdn: 'CDN / Infrastructure',
       stack_category_tools: 'Outils & Services',
 
@@ -181,6 +194,12 @@
       qt_font: 'Polices',
       qt_cookies: 'Cookies',
       qt_cache: 'Cache',
+      qt_screenshot: 'Capture',
+
+      // Pixels
+      setup_manual: 'Manuel',
+      setup_gtm: 'via GTM',
+      debug_link: 'Event Manager',
 
       tools_eyedropper: 'Pipette',
       tools_eyedropper_btn: 'Choisir une couleur',
@@ -198,9 +217,12 @@
       tools_color_rgb: 'RVB',
       tools_color_hsl: 'TSL',
       tools_color_history: 'Historique',
+      tools_color_clear: 'Effacer l\'historique',
       tools_copy: 'Copi\u00e9 !',
+      screenshot_download: 'T\u00e9l\u00e9charger',
+      screenshot_copy: 'Copier',
 
-      footer_text: 'impulsion.com v2.2 \u2014 Debugger Universel de Pixels',
+      footer_text: 'Media Buyer Helper v2.3 \u2014 Debugger Universel de Pixels',
       footer_request: 'Sugg\u00e9rer une fonctionnalit\u00e9',
 
       // SEO tab

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "impulsion.com",
-  "description": "Universal pixel & tag debugger for media buyers. Detect GTM, GA4, Meta, TikTok, LinkedIn, Pinterest, Snapchat, X, Bing & more.",
-  "version": "2.2.0",
+  "name": "Media Buyer Helper",
+  "description": "Universal pixel debugger and tech stack detector. Verify tracking implementations, check consent mode, and inspect any webpage.",
+  "version": "2.3.0",
 
   "icons": {
     "16": "icons/icon-16.png",
@@ -17,7 +17,7 @@
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
     },
-    "default_title": "impulsion.com — Pixel Debugger"
+    "default_title": "Media Buyer Helper — Pixel Debugger"
   },
 
   "background": {

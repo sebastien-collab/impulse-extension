@@ -1503,3 +1503,185 @@ body {
   opacity: 0.8;
   text-decoration: underline;
 }
+
+/* ─── SETUP METHOD BADGE ──────────────────────────────────── */
+
+.pixel-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setup-method-badge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent-subtle);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── EVENT MANAGER LINK ──────────────────────────────────── */
+
+.pixel-debug-link {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--accent-subtle);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: 0.03em;
+}
+
+.pixel-debug-link:hover {
+  background: var(--accent-bg-hover);
+}
+
+/* ─── COLOR HISTORY ───────────────────────────────────────── */
+
+.mini-color-swatches {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.color-history-toggle-btn {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  margin-left: 6px;
+}
+
+.color-history-toggle-btn:hover {
+  color: var(--accent-subtle);
+  border-color: var(--accent-border);
+}
+
+.color-history-full {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.color-history-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  width: calc(50% - 3px);
+  box-sizing: border-box;
+}
+
+.color-history-entry:hover {
+  border-color: var(--accent-border);
+}
+
+.color-history-entry-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.color-history-entry-hex {
+  font-size: 10px;
+  font-family: 'SF Mono', Monaco, monospace;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.color-history-clear-btn {
+  font-size: 9px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.color-history-clear-btn:hover {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+/* ─── SCREENSHOT PANEL ────────────────────────────────────── */
+
+.quick-screenshot-panel {
+  padding: 8px 12px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.quick-screenshot-panel.hidden {
+  display: none;
+}
+
+.screenshot-preview img {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  max-height: 200px;
+  object-fit: contain;
+  background: var(--bg-inset);
+}
+
+.screenshot-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.screenshot-action-btn {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.screenshot-action-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-subtle);
+}
+
+.screenshot-close {
+  flex: 0;
+  padding: 5px 10px;
+  color: var(--text-dim);
+}
